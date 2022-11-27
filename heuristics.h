@@ -9,10 +9,10 @@ class Heuristic{
 	virtual int getHeuristic(Node N, Node Goal) const;	//TODO base heuristic uses manhattan
 };
 
-class PDB : public Heuristic{
+class CanonicalTDH : public Heuristic{
 	public:
-	PDB(){}
-	~PDB(){}
+    CanonicalTDH(){}
+    ~CanonicalTDH(){}
 
 	void calculatePDB();	//TODO
 	void randomizeNodes(Map map);	//TODO

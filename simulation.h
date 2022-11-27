@@ -21,16 +21,16 @@ class Population{
     void keepBest(int count);	//TODO
     void crossover(int count);	//TODO
     void mutate(float mutationFactor);	//TODO
-    PDB getBest();	//TODO
+    CanonicalTDH getBest();	//TODO
 
     int generation;
-    QList<PDB> population;
+    QList<CanonicalTDH> population;
 
 };
 
 void exportToCSV(Population population, QString filename);	//TODO
-void exportToCSV(PDB heuristic, QString filename);	//TODO
-PDB importFromCSV(QString filename);	//TODO
+void exportToCSV(CanonicalTDH heuristic, QString filename);	//TODO
+CanonicalTDH importFromCSV(QString filename);	//TODO
 
 int runSimulation(){
 	//input arguments, via console or GUI
