@@ -19,6 +19,8 @@ MainWindowControls::~MainWindowControls()
 
 void MainWindowControls::on_pushButtonStart_clicked()
 {
+    //run each command in the command list
+
     runSimulation();
 
     const QString MAP_NAME = "";
@@ -40,19 +42,14 @@ void MainWindowControls::on_pushButtonStop_clicked()
 }
 
 
-void MainWindowControls::on_pustButtonMapBrowse_clicked()
+void MainWindowControls::on_pushButtonBrowseCommand_clicked()
 {
-
+    //browse for a file
+    //place each line in the file on a seperate item in the command list
 }
 
 
-void MainWindowControls::on_pushButtonInstanceBrowse_clicked()
-{
-
-}
-
-
-void MainWindowControls::on_pushButtonOutputBrowse_clicked()
+void MainWindowControls::on_pushButtonReset_clicked()
 {
 
 }

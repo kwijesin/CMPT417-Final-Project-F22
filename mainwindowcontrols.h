@@ -20,11 +20,9 @@ private slots:
 
     void on_pushButtonStop_clicked();
 
-    void on_pustButtonMapBrowse_clicked();
+    void on_pushButtonBrowseCommand_clicked();
 
-    void on_pushButtonInstanceBrowse_clicked();
-
-    void on_pushButtonOutputBrowse_clicked();
+    void on_pushButtonReset_clicked();
 
 private:
     Ui::MainWindowControls *ui;

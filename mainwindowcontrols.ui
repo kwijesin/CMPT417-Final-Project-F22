@@ -28,100 +28,25 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Map</string>
+            <string>Command File</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Instances</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Output</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="pushButtonMapBrowse">
+         <item>
+          <widget class="QPushButton" name="pushButtonBrowseCommand">
            <property name="text">
             <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="pushButtonInstanceBrowse">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="pushButtonOutputBrowse">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Population</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="spinBoxPopulation"/>
-         </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="spinBoxGeneration"/>
-         </item>
-         <item row="5" column="1">
-          <widget class="QSpinBox" name="spinBoxTestSize"/>
-         </item>
-         <item row="6" column="1">
-          <widget class="QSpinBox" name="spinBoxCull"/>
-         </item>
-         <item row="7" column="1">
-          <widget class="QDoubleSpinBox" name="doubleSpinBoxMutation"/>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Generations</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Test Suite Size</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Culling Rate</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Mutation Factor</string>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidgetCommands"/>
        </item>
        <item>
         <widget class="QFrame" name="frame">
