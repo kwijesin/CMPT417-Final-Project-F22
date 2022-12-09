@@ -14,10 +14,9 @@ struct Node{
  */
 class Map{
     public:
-    Map(QString filename){}
-	~Map(){
-		delete map;
-	}
+    Map();
+    Map(QString filename);
+    ~Map(){}
 
 	bool isOpen (Node N) const{
 		return isOpen(N.x, N.y);
@@ -40,8 +39,8 @@ class Map{
 
 	int xSize;
 	int ySize;
-	int N;
-    bool** map; /*! Double pointer to a dynamically allocated array indexed by x,y position, row major. Use New and Delete */
+    int N;
+    std::vector<std::vector<bool>> map; // double vector, set capacity to xSize ySize using reserve
 };
 
 /*!
@@ -62,19 +61,19 @@ class Instance{
      *  Returns a list of instances gotten from the instance filetypes from the benchmark website
      * \param filename: filetype from https://movingai.com/benchmarks/mapf.html
      */
-	static QList<Instance> importInstances(QString filename);	//TODO
+    static QList<Instance> importInstances(QString filename);
 
     /*!
      * \brief getRandomTestSuite
      *  Returns a random subset of allInstances
      */
-	static QList<Instance> getRandomTestSuite(QList<Instance> allInstances, int count);	//TODO
+    static QList<Instance> getRandomTestSuite(QList<Instance> allInstances, int count);
 
     /*!
      * \brief generateRandomTestSuite:
      *  Generates a new random set of instances for the map instead of getting them from a file
      */
-    static QList<Instance> generateRandomTestSuite(Map map, int count);	//TODO
+    static QList<Instance> generateRandomTestSuite(Map map, int count);
 	
 	Node start;
 	Node goal;

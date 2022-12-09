@@ -19,9 +19,14 @@ set(PROJECT_SOURCES
         mainwindowcontrols.ui
         mapwidget.h
         solvers.h
+        solvers.cpp
         instances.h
+        instances.cpp
         heuristics.h
+        heuristics.cpp
         simulation.h
+        simulation.cpp
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

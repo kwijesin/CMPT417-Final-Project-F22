@@ -20,6 +20,17 @@ MainWindowControls::~MainWindowControls()
 void MainWindowControls::on_pushButtonStart_clicked()
 {
     runSimulation();
+
+    const QString MAP_NAME = "";
+    const QString INSTANCE_NAME = "instancename.txt";
+    const QString OUTPUT_NAME = "output.csv";
+    const int POP_COUNT = 100;
+    const int NUM_GENERATIONS = 50;
+    const int TEST_SIZE = 50;
+    const float MUTATION_FACTOR = 1.0;
+    const int CULL_RATE = 4;	//	only the top (POP/RATE) agents are kept each generation
+
+    int ret = runSimulation(MAP_NAME, INSTANCE_NAME, OUTPUT_NAME, POP_COUNT, NUM_GENERATIONS, TEST_SIZE, CULL_RATE, MUTATION_FACTOR);
 }
 
 
