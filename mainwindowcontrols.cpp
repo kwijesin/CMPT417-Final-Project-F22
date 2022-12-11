@@ -21,7 +21,8 @@ MainWindowControls::MainWindowControls(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("Simulation");
 
-    ui->progressBar->hide();
+    ui->progressBar->setMaximum(100);
+    ui->progressBar->setValue(0);
 }
 
 MainWindowControls::~MainWindowControls()
@@ -51,11 +52,11 @@ void MainWindowControls::on_pushButtonStart_clicked()
     //Runs the first command in it's own thread
     mainSimulationThread = new SimulationThread();
     QString command = ui->listWidgetCommandList->takeItem(0)->text();
-    ui->labelCurrentCommand->setText(command);
     QStringList argList = command.split(" ");
-    mainSimulationThread->mapName = argList.at(MAP_IND);
-    mainSimulationThread->instanceName = argList.at(INSTANCE_IND);
-    mainSimulationThread->outputName = argList.at(OUTPUT_IND);
+    QString currentPath = QCoreApplication::applicationDirPath() + "/";
+    mainSimulationThread->mapName = currentPath + argList.at(MAP_IND);
+    mainSimulationThread->instanceName = currentPath + argList.at(INSTANCE_IND);
+    mainSimulationThread->outputName = currentPath + argList.at(OUTPUT_IND);
     mainSimulationThread->pop = argList.at(POP_IND).toInt();
     mainSimulationThread->generations = argList.at(GENERATIONS_IND).toInt();
     mainSimulationThread->testCount = argList.at(TESTSIZE_IND).toInt();
@@ -63,9 +64,10 @@ void MainWindowControls::on_pushButtonStart_clicked()
     mainSimulationThread->mutation = argList.at(MUTATION_IND).toFloat();
 
     //set up UI connections and start thread
-    ui->progressBar->show();
+    ui->labelCurrentCommand->setText(command);
     ui->progressBar->setMaximum(argList.at(GENERATIONS_IND).toInt());
     ui->progressBar->setValue(0);
+    ui->labelMap->setMap(currentPath + argList.at(MAP_IND));
     QObject::connect(mainSimulationThread, SIGNAL(reportProgress(int)), this, SLOT(onSimulationReport(int)));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), this, SLOT(onSimulationComplete()));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), mainSimulationThread, SLOT(deleteLater()));
@@ -78,7 +80,6 @@ void MainWindowControls::on_pushButtonStop_clicked()
     if(mainSimulationThread != NULL && mainSimulationThread->isRunning()){
         QObject::disconnect(mainSimulationThread, SIGNAL(finished()), this, SLOT(onSimulationComplete()));
         mainSimulationThread->quit();
-        ui->progressBar->hide();
         ui->labelCurrentCommand->clear();
     }
 }
@@ -100,6 +101,13 @@ void MainWindowControls::on_pushButtonBrowseCommand_clicked()
         if(line.endsWith("\n"))
             line.chop(1);
         ui->listWidgetCommandList->addItem(line);
+    }
+
+    if(ui->listWidgetCommandList->count() > 0){
+        QString command = ui->listWidgetCommandList->item(0)->text();
+        QStringList argList = command.split(" ");
+        QString currentPath = QCoreApplication::applicationDirPath() + "/";
+        ui->labelMap->setMap(currentPath + argList.at(MAP_IND));
     }
 
     file.close();
