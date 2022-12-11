@@ -47,25 +47,6 @@ void MainWindowControls::on_pushButtonStart_clicked()
 {
     if(ui->listWidgetCommandList->count() <= 0)
         return;
-    //run each command in the command list
-    /*
-    int count = ui->listWidgetCommandList->count();
-    for(int i = 0; i < count; i++){
-        QString command = ui->listWidgetCommandList->item(i)->text();
-        QStringList argList = command.split(" ");
-        const QString MAP_NAME = argList.at(MAP_IND);
-        const QString INSTANCE_NAME = argList.at(INSTANCE_IND);
-        const QString OUTPUT_NAME = argList.at(OUTPUT_IND);
-        const int POP_COUNT = argList.at(POP_IND).toInt();
-        const int NUM_GENERATIONS = argList.at(GENERATIONS_IND).toInt();
-        const int TEST_SIZE = argList.at(TESTSIZE_IND).toInt();
-        const int CULL_RATE = argList.at(CULL_IND).toInt();
-        const float MUTATION_FACTOR = argList.at(MUTATION_IND).toFloat();
-        int ret = runSimulation(MAP_NAME, INSTANCE_NAME, OUTPUT_NAME, POP_COUNT, NUM_GENERATIONS, TEST_SIZE, CULL_RATE, MUTATION_FACTOR);
-        if(ret < 0)
-            return;
-    }
-    */
 
     //Runs the first command in it's own thread
     mainSimulationThread = new SimulationThread();
@@ -81,6 +62,7 @@ void MainWindowControls::on_pushButtonStart_clicked()
     mainSimulationThread->cullRate = argList.at(CULL_IND).toInt();
     mainSimulationThread->mutation = argList.at(MUTATION_IND).toFloat();
 
+    //set up UI connections and start thread
     ui->progressBar->show();
     ui->progressBar->setMaximum(argList.at(GENERATIONS_IND).toInt());
     ui->progressBar->setValue(0);
@@ -88,7 +70,6 @@ void MainWindowControls::on_pushButtonStart_clicked()
     QObject::connect(mainSimulationThread, SIGNAL(finished()), this, SLOT(onSimulationComplete()));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), mainSimulationThread, SLOT(deleteLater()));
     mainSimulationThread->start();
-
 }
 
 
