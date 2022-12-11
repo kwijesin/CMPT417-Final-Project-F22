@@ -14,10 +14,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
+        mapwidget.h
         mainwindowcontrols.cpp
         mainwindowcontrols.h
         mainwindowcontrols.ui
-        mapwidget.h
         solvers.h
         solvers.cpp
         instances.h
@@ -26,7 +26,6 @@ set(PROJECT_SOURCES
         heuristics.cpp
         simulation.h
         simulation.cpp
-
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
