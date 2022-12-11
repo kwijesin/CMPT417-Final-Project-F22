@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>675</height>
+    <width>1308</width>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <widget class="QGroupBox" name="groupBox">
       <property name="maximumSize">
        <size>
-        <width>350</width>
+        <width>16777215</width>
         <height>16777215</height>
        </size>
       </property>
@@ -30,7 +30,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="labelCommandFile">
            <property name="text">
             <string>Command File</string>
            </property>
@@ -46,7 +46,14 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetCommands"/>
+        <widget class="QListWidget" name="listWidgetCommandList">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QFrame" name="frame">
@@ -82,9 +89,25 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="labelCurrentCommand">
+         <property name="text">
+          <string>---</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QProgressBar" name="progressBar">
          <property name="value">
           <number>24</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="textDirection">
+          <enum>QProgressBar::TopToBottom</enum>
          </property>
         </widget>
        </item>
@@ -127,7 +150,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>968</width>
+     <width>1308</width>
      <height>22</height>
     </rect>
    </property>

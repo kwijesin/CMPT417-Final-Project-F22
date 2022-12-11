@@ -2,6 +2,7 @@
 #define MAPWIDGET_H
 
 #include "instances.h"
+#include "heuristics.h"
 #include <QWidget>
 
 //Graphics widget that can be used to show a map
@@ -19,6 +20,7 @@ public:
     void setMap(Map map);
     void setMap(QString filename);
     void setInstance(Instance instance);
+    void setHeuristic(CanonicalTDH heuristic);
 
     void paintEvent(QPaintEvent *event)
     {

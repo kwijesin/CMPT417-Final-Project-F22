@@ -8,6 +8,7 @@
 #include "solvers.h"
 
 #include <QtCore>
+#include <QThread>
 
 class Population{
     public:
@@ -30,6 +31,8 @@ class Population{
     /*!
      * \brief keepBest
      * Keeps the best 'count' members of the population
+     * Either by picking all of the best members
+     * Or with a slightly more random method
      */
     void keepBest(int count);
 
@@ -83,5 +86,27 @@ QList<CanonicalTDH> importFromCSV(QString filename);
  */
 int runSimulation();
 int runSimulation(QString mapName, QString instanceName, QString outputName, int pop, int generations, int testCount, int cullRate, float mutation);
+
+/*!
+ * \brief The SimulationThread class
+ * Runs a simulation within it's own thread.
+ * Reports the current generation on the reportProgress.
+ */
+class SimulationThread : public QThread
+{
+    Q_OBJECT
+    void run() override;
+signals:
+    void reportProgress(int currentGeneration);
+public:
+    QString mapName;
+    QString instanceName;
+    QString outputName;
+    int pop;
+    int generations;
+    int testCount;
+    int cullRate;
+    float mutation;
+};
 
 #endif
