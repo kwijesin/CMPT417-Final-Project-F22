@@ -2,11 +2,28 @@
 #define INSTANCES_H
 
 #include <QString>
+#include <QList>
 
 struct Node{
+    //normal nodes
 	int x;
-	int y;
+    int y;
+
+    //used for pathfinding
+    int h;
+    int g;
+    int f(){
+        return h+g;
+    }
+    int parentx;
+    int parenty;
+
+    bool operator < (Node a){
+        return f() < a.f();
+    }
 };
+
+typedef QList<Node> Path;
 
 /*!
  * Opens .txt files from the MAPF benchmarks website:
@@ -19,7 +36,7 @@ class Map{
     ~Map(){}
 
 	bool isOpen (Node N) const{
-		return isOpen(N.x, N.y);
+        return isOpen(N.x, N.y);
 	}
 
     bool isOpen(int x, int y) const{

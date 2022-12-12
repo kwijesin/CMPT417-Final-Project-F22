@@ -4,9 +4,26 @@
 #include "instances.h"
 #include "heuristics.h"
 
+#include <QMap>
+#include <set>
+
+/*!
+ * \brief The NodeHeap class
+ * Provides a sorted list of nodes using std::multiset. Used for solvers.
+ */
+class NodeHeap : public std::multiset<Node>{
+public:
+    void push(Node node){
+        insert(node);
+    }
+    Node pop(){
+        return extract(begin()).value();
+    }
+};
+
 /*!
  * \brief The Solver class
- *  Generic solver class that should use dijkstra's algorithm or something, maybe we don't implement it at all
+ *  Generic solver class that should use BFS: used when we calculate canonical TDH?
  */
 class Solver{
 	public:

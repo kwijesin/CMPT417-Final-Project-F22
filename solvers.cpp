@@ -9,18 +9,25 @@ bool Solver::solve(Map map, Instance instance, int* pathLength, Heuristic* heuri
 }
 bool Solver::solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic) const
 {
-    //TODO
+    //TODO: BFS
     return false;
 }
 
 bool AStar::solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic) const
 {
-    //TODO
+    //TODO: AStar
+    //Example code for how to use the class NodeHeap
+
+    NodeHeap openList;
+    Node pushNode;
+    openList.push(pushNode);
+    Node poppedNode = openList.pop();
+
     return false;
 }
 
 bool IDAStar::solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic) const
 {
-    //TODO
+    //TODO: IDAStar
     return false;
 }
