@@ -49,13 +49,22 @@ void MainWindowControls::on_pushButtonStart_clicked()
     if(ui->listWidgetCommandList->count() <= 0)
         return;
 
-    //Runs the first command in it's own thread
-    mainSimulationThread = new SimulationThread();
     QString command = ui->listWidgetCommandList->takeItem(0)->text();
     QStringList argList = command.split(" ");
     QString currentPath = QCoreApplication::applicationDirPath() + "/";
+    QString instanceName = argList.at(MAP_IND);
+
+    if(!QFile::exists(currentPath + instanceName) && instanceName != "random")
+        return;
+    if(!QFile::exists(currentPath + argList.at(INSTANCE_IND)))
+        return;
+
+    mainSimulationThread = new SimulationThread();
     mainSimulationThread->mapName = currentPath + argList.at(MAP_IND);
-    mainSimulationThread->instanceName = currentPath + argList.at(INSTANCE_IND);
+    if(instanceName == "random")
+        mainSimulationThread->instanceName = instanceName;
+    else
+        mainSimulationThread->instanceName = currentPath + instanceName;
     mainSimulationThread->outputName = currentPath + argList.at(OUTPUT_IND);
     mainSimulationThread->pop = argList.at(POP_IND).toInt();
     mainSimulationThread->generations = argList.at(GENERATIONS_IND).toInt();

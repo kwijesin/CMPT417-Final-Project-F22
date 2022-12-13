@@ -88,7 +88,10 @@ int runSimulation(QString mapName, QString instanceName, QString outputName, int
         population.mutate(mutation);
 
         //generate test suite
-        testInstances = Instance::getRandomTestSuite(allInstances, testCount);
+        if(instanceName == "random")
+            testInstances = Instance::generateRandomTestSuite(map, testCount);
+        else
+            testInstances = Instance::getRandomTestSuite(allInstances, testCount);
 
         //solve and save data
         population.testPopulation(solver, testInstances);
