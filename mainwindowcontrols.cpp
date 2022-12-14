@@ -109,7 +109,16 @@ void MainWindowControls::on_pushButtonBrowseCommand_clicked()
         line = file.readLine();
         if(line.endsWith("\n"))
             line.chop(1);
-        ui->listWidgetCommandList->addItem(line);
+
+        QStringList argList = line.split(" ");
+        QString currentPath = QCoreApplication::applicationDirPath() + "/";
+        bool mapExists = QFile::exists(currentPath+argList.at(MAP_IND));
+        bool instanceExists = QFile::exists(currentPath+argList.at(INSTANCE_IND)) || argList.at(INSTANCE_IND) == "random";
+
+        QListWidgetItem* newItem = new QListWidgetItem(line);
+        if(!mapExists || !instanceExists)
+            newItem->setForeground(QBrush(Qt::red));
+        ui->listWidgetCommandList->addItem(newItem);
     }
 
     if(ui->listWidgetCommandList->count() > 0){
