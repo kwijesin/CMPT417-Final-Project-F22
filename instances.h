@@ -12,14 +12,18 @@ struct Node{
     //used for pathfinding
     int h;
     int g;
-    int f(){
+    int f() const{
         return h+g;
     }
     int parentx;
     int parenty;
 
-    bool operator < (Node a){
+    bool operator < (Node a) const{
         return f() < a.f();
+    }
+
+    bool operator == (Node a) const{
+        return x == a.x && y == a.y;
     }
 };
 
@@ -72,6 +76,8 @@ class Instance{
         goal = Goal;
 	}
 	~Instance(){}
+
+    static Node getRandomValidNode(Map map);
 
     /*!
      * \brief importInstances

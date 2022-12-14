@@ -26,13 +26,19 @@ void CanonicalTDH::calculateTDH()
 
 void CanonicalTDH::randomizeNodes(Map map)
 {
-    //TODO
+    nodes.clear();
+    while(nodes.length() < k){
+        nodes.append(Instance::getRandomValidNode(map));
+    }
 }
 
 int CanonicalTDH::getHeuristic(Node N, Node Goal) const
 {
-    //TODO
-    return 0;
+    Node nearestN = secondary[N.x][N.y].closestPivot;
+    Node nearestG = secondary[Goal.x][Goal.y].closestPivot;
+    int indNearestN = nodes.indexOf(nearestN);
+    int indNearestG = nodes.indexOf(nearestG);
+    return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
 }
 
 void CanonicalTDH::mutateNodes(Map map, float mutationFactor)

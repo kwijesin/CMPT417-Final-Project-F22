@@ -28,6 +28,6 @@ bool AStar::solve(Map map, Instance instance, QList<Node>* path, Heuristic* heur
 
 bool IDAStar::solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic) const
 {
-    //TODO: IDAStar
+    //TODO: IDAStar optional
     return false;
 }

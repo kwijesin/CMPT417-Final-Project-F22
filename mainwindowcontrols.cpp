@@ -52,11 +52,11 @@ void MainWindowControls::on_pushButtonStart_clicked()
     QString command = ui->listWidgetCommandList->takeItem(0)->text();
     QStringList argList = command.split(" ");
     QString currentPath = QCoreApplication::applicationDirPath() + "/";
-    QString instanceName = argList.at(MAP_IND);
+    QString instanceName = argList.at(INSTANCE_IND);
 
     if(!QFile::exists(currentPath + instanceName) && instanceName != "random")
         return;
-    if(!QFile::exists(currentPath + argList.at(INSTANCE_IND)))
+    if(!QFile::exists(currentPath + argList.at(MAP_IND)))
         return;
 
     mainSimulationThread = new SimulationThread();

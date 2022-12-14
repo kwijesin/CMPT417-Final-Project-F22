@@ -102,13 +102,16 @@ QList<Instance> Instance::importInstances(QString filename)
 
 QList<Instance> Instance::getRandomTestSuite(QList<Instance> allInstances, int count)
 {
+    if(allInstances.length() <= count)
+        return allInstances;
+
     QList<Instance> ret;
     while(ret.length() < count)
         ret.append(allInstances.takeAt(QRandomGenerator::global()->bounded(0,allInstances.count()-1)));
     return ret;
 }
 
-Node getRandomValidNode(Map map){
+Node Instance::getRandomValidNode(Map map){
     Node ret;
     int x,y;
     QRandomGenerator* gen = QRandomGenerator::global();
