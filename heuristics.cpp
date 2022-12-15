@@ -1,5 +1,6 @@
 #include "heuristics.h"
 #include <cmath>
+#include <random>
 
 int Heuristic::getHeuristic(Node N, Node Goal) const
 {
@@ -8,6 +9,7 @@ int Heuristic::getHeuristic(Node N, Node Goal) const
 
 void CanonicalTDH::setK(int numPivots)
 {
+    isCalculated = false;
     k = numPivots;
 }
 
@@ -26,6 +28,7 @@ void CanonicalTDH::calculateTDH()
 
 void CanonicalTDH::randomizeNodes(Map map)
 {
+    isCalculated = false;
     nodes.clear();
     while(nodes.length() < k){
         nodes.append(Instance::getRandomValidNode(map));
@@ -43,7 +46,30 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
 
 void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
 {
-    //TODO
+    isCalculated = false;
+
+    std::mt19937 stdGen(QRandomGenerator::global()->generate());
+    std::normal_distribution<float> gNorm(0, mutationFactor);
+
+    //moves each node by a normal distribution
+    QList<Node> newList;
+    nodes.clear();
+    for(int i = 0; i < k; i++){
+        Node newNode;
+        int xOff,yOff;
+        bool valid = false;
+        while(!valid){
+            xOff = qRound(gNorm(stdGen));
+            yOff = qRound(gNorm(stdGen));
+            newNode = nodes.at(i);
+            newNode.x += xOff;
+            newNode.y += yOff;
+            if(map.isOpen(newNode) && !newList.contains(newNode))
+                valid = true;
+        }
+        newList.append(newNode);
+    }
+    nodes = newList;
 }
 
 void AlgorithmicCanonicalTDH::calculateTDH()
@@ -57,4 +83,5 @@ void AlgorithmicCanonicalTDH::calculateTDH()
      * 4. repeat until all nodes are marked
      * 5. sample the set of canonical states until we have exactly k states
      */
+    isCalculated = true;
 }
