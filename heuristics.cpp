@@ -31,7 +31,7 @@ void CanonicalTDH::randomizeNodes(Map map)
     isCalculated = false;
     nodes.clear();
     while(nodes.length() < k){
-        nodes.append(Instance::getRandomValidNode(map));
+        nodes.append(map.getRandomValidNode());
     }
 }
 

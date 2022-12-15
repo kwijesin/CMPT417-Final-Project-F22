@@ -54,6 +54,8 @@ class Map{
         return N;
     }
 
+    Node getRandomValidNode();
+
 	static Map importMap(QString filename){
 		return Map(filename);
 	}
@@ -75,9 +77,8 @@ class Instance{
 		start = Start;
         goal = Goal;
 	}
-	~Instance(){}
+    ~Instance(){}
 
-    static Node getRandomValidNode(Map map);
 
     /*!
      * \brief importInstances

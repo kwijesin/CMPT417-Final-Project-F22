@@ -111,14 +111,14 @@ QList<Instance> Instance::getRandomTestSuite(QList<Instance> allInstances, int c
     return ret;
 }
 
-Node Instance::getRandomValidNode(Map map){
+Node Map::getRandomValidNode(){
     Node ret;
     int x,y;
     QRandomGenerator* gen = QRandomGenerator::global();
     do{
-        x = gen->bounded(0, map.xSize-1);
-        y = gen->bounded(0, map.ySize-1);
-    }while(!map.isOpen(x, y));
+        x = gen->bounded(0, xSize-1);
+        y = gen->bounded(0, ySize-1);
+    }while(!isOpen(x, y));
     ret.x = x;
     ret.y = y;
     return ret;
@@ -128,7 +128,7 @@ QList<Instance> Instance::generateRandomTestSuite(Map map, int count)
 {
     QList<Instance> ret;
     while(ret.length() < count){
-        Instance add(getRandomValidNode(map), getRandomValidNode(map));
+        Instance add(map.getRandomValidNode(), map.getRandomValidNode());
         ret.append(add);
     }
     return ret;
