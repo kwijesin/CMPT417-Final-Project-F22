@@ -6,8 +6,8 @@
 
 struct Node{
     //normal nodes
-	int x;
-    int y;
+    int x = NULL;
+    int y = NULL;
 
     //used for pathfinding
     int h;

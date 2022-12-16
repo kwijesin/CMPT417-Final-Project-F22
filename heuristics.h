@@ -31,7 +31,7 @@ class CanonicalTDH : public Heuristic{
      *      fill out the primary array with all-pairs true distance
      *      fill out the secondary array with the closest pivot and the distance to it
      */
-    void calculateTDH();
+    void calculateTDH(Map map);
 
     /*!
      * \brief randomizeNodes
@@ -62,8 +62,8 @@ class CanonicalTDH : public Heuristic{
 	
 	private:
 	struct SecondaryData{
-		int pivotDistance;
-		Node closestPivot;
+        int pivotDistance = -1;
+        Node closestPivot;
     };
     int k;
     std::vector<std::vector<int>> primary;	/*! kxk sized dynamic array containing the shortest path distance between node x and node y, ordered by the order in nodes */
@@ -85,7 +85,7 @@ class AlgorithmicCanonicalTDH : public CanonicalTDH{
      * \brief calculateTDH
      *  Only calculateTDH has to be reimplemented to get the algorithmic approach working
      */
-    void calculateTDH();
+    void calculateTDH(Map map);
 
 };
 
