@@ -43,32 +43,54 @@ public:
         pixMap.fill(Qt::black);
         QPainter pixPainter(&pixMap);
 
-        //draw map
-        for(int y = 0; y < map.ySize; y++){
-            for(int x = 0; x < map.ySize; x++){
-                pixPainter.setPen(map.map[x][y] ? Qt::white :Qt::black);
-                pixPainter.drawPoint(x,y);
-            }
-        }
-
-        //draw circles around each point K if there's a heuristic
         if(hasHeuristic){
+            //choose a random light blue-greenish color for each pivot K
+            QList<QColor> colors;
+            for(int i = 0; i < heuristic.k; i++){
+                int red = QRandomGenerator::global()->bounded(0,50);
+                int green = QRandomGenerator::global()->bounded(150,255);
+                int blue = QRandomGenerator::global()->bounded(150,255);
+                QColor color = QColor::fromRgb(red,green,blue);
+                colors.append(color);
+            }
+
+            //paint each pixel the color of the nearest pivot
+            for(int y = 0; y < map.ySize; y++){
+                for(int x = 0; x < map.ySize; x++){
+                    Node nearestPivot = heuristic.secondary[x][y].closestPivot;
+                    int pivotIndex = heuristic.nodes.indexOf(nearestPivot);
+                    pixPainter.setPen(map.map[x][y] ? colors.at(pivotIndex) : Qt::black);
+                    pixPainter.drawPoint(x,y);
+                }
+            }
+
+            //draw red circles around each pivot K
             pixPainter.setPen(Qt::red);
             for(int i = 0; i < heuristic.nodes.length(); i++){
                 Node toDraw = heuristic.nodes.at(i);
                 pixPainter.drawEllipse(toDraw.x, toDraw.y, 2, 2);
             }
+        }else{
+            //draw map normally
+            for(int y = 0; y < map.ySize; y++){
+                for(int x = 0; x < map.ySize; x++){
+                    pixPainter.setPen(map.map[x][y] ? Qt::white : Qt::black);
+                    pixPainter.drawPoint(x,y);
+                }
+            }
         }
-
-        //Save image
-        //QFile file("repaintedmap.png");
-        //file.open(QIODevice::WriteOnly);
-        //pixMap.save(&file, "PNG");
-        //file.close();
 
         //scale and paint the map onto this widget
         QPixmap scaledPixMap = pixMap.scaled(size(),Qt::KeepAspectRatio);
         this->setPixmap(scaledPixMap);
+    }
+
+    void saveImage(QString filename){
+        QPixmap myMap = this->pixmap();
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
+        myMap.save(&file, "PNG");
+        file.close();
     }
 
 signals:
