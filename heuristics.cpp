@@ -6,6 +6,11 @@ int Heuristic::getHeuristic(Node N, Node Goal) const
     return abs(Goal.x - N.x) + abs(Goal.y - N.y);
 }
 
+CanonicalTDH::CanonicalTDH(int gen)
+{
+    generation = gen;
+}
+
 void CanonicalTDH::setK(int numPivots)
 {
     k = numPivots;

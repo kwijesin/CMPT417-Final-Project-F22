@@ -1,14 +1,25 @@
 #include "simulation.h"
 
+Population::Population(const Map* map) : map(map) {}
+
 void Population::initialize(int popCount)
 {
-    //TODO
+    for (int i = 0; i < popCount; i++)
+    {
+        // 
+        population.append(CanonicalTDH(0));
+    }
+
     generation = 0;
 }
 
 void Population::testPopulation(Solver solver, QList<Instance> instances)
 {
-    //TODO
+    QList<Instance>::iterator i;
+    for (i = instances.begin(); i != instances.end(); i++)
+    {
+        Solver::solve(map, *i, , &population.at(i));
+    }
 
     generation++;
 }

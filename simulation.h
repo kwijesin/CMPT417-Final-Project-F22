@@ -57,6 +57,7 @@ class Population{
 
     int generation;
     QList<CanonicalTDH> population;
+    Map* map;
 
 };
 
