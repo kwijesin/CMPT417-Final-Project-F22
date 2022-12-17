@@ -33,6 +33,8 @@ QList<Node> expandNode(Node expanded, Map map){
 
 void CanonicalTDH::calculateTDH(Map map)
 {
+    //Assumes that K and nodes are initialized by some other means
+
     //initialize TDH arrays
     primary.clear();
     std::vector<int> copyP;
@@ -156,16 +158,100 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
     nodes = newList;
 }
 
+struct coordinate{
+    int x;
+    int y;
+};
+
+QHash<coordinate, bool> getUnmarkedList(Map map){
+    QHash<coordinate, bool> ret;
+    for(int y = 0; y < map.ySize; y++){
+        for(int x = 0; x < map.ySize; x++){
+            if(map.map[x][y]){
+                coordinate add;
+                add.x = x;
+                add.y = y;
+                ret.insert(add,false);
+            }
+        }
+    }
+    return ret;
+}
+
+template <typename K, typename V> K randomKeyFromHash(QHash<K, V> list){
+    int chosenInd = QRandomGenerator::global()->bounded(list.count());
+    return list.keys().at(chosenInd);
+}
+
 void AlgorithmicCanonicalTDH::calculateTDH(Map map)
 {
-    //TODO
     //https://webdocs.cs.ualberta.ca/~nathanst/papers/TDH.pdf
-
-    /* 1. choose an un-marked node at random
+    /* 1. choose an un-marked node at random to be a new pivot
      * 2. breadth first search of unmarked nodes, marking them as you go, until you mark N/k nodes
-     * 3. find the center of the marked patch and place a state there
      * 4. repeat until all nodes are marked
-     * 5. sample the set of canonical states until we have exactly k states
+     * 5. repeat the whole process until we're within 10% of the intended number of k
      */
+
+    //assumes that k is initialized
+    //may change K by a small amount
+    //creates nodes from scratch
+
+    const int areaOfZone = map.N/k;
+    bool validTo10Percent = false;
+    int actualK = 0;
+    while(!validTo10Percent){
+        nodes.clear();
+        QHash<coordinate, bool> markedList;
+        QHash<coordinate, bool> unmarkedList = getUnmarkedList(map);
+        actualK = 0;
+
+        NodeHeap openList;
+        int numNodesMarked = 0;   //up to k*k
+
+        while(numNodesMarked < map.N){
+            int numNodesInZone = 1;
+
+            //find a random unmarked point to use as a new pivot
+            coordinate root = randomKeyFromHash(unmarkedList);
+            Node newPivot;
+            newPivot.x = root.x;
+            newPivot.y = root.y;
+            newPivot.g = 0;
+            nodes.append(newPivot);
+            markedList.insert(root, true);
+            unmarkedList.remove(root);
+            actualK++;
+
+            //DFS areaOfZone points branching from that point
+            NodeHeap openList;
+            newPivot.g = 0;
+            openList.push(newPivot);
+            while(numNodesInZone < areaOfZone && !openList.empty()){
+                Node expandingNode = openList.pop();
+                QList<Node> childNodes = expandNode(expandingNode, map);
+                for(int i = 0; i < childNodes.length(); i++){
+                    Node childNode = childNodes.at(i);
+                    coordinate child;
+                    child.x = childNode.x;
+                    child.y = childNode.y;
+                    if(unmarkedList.contains(child)){
+                        unmarkedList.remove(child);
+                        markedList.insert(child, true);
+                        childNode.g = expandingNode.g + 1;
+                        numNodesInZone++;
+                    }
+                }
+            }
+        }
+
+        //check if we got within 10% k
+        if(abs(actualK - k) < float(k)/10)
+            validTo10Percent = true;
+    }
+
+    k = actualK;
+
+    CanonicalTDH::calculateTDH(map);
+
     isCalculated = true;
 }
