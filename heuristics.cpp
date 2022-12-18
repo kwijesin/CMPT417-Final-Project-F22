@@ -3,11 +3,20 @@
 #include <cmath>
 #include <random>
 #include <set>
+<<<<<<< HEAD
 #include <iostream>
+=======
+#include <QRandomGenerator>
+>>>>>>> yilin
 
 int Heuristic::getHeuristic(Node N, Node Goal) const
 {
     return abs(Goal.x - N.x) + abs(Goal.y - N.y);
+}
+
+CanonicalTDH::CanonicalTDH(int generation, int score) : generation(generation), score(score)
+{
+    isCalculated = false;
 }
 
 void CanonicalTDH::setK(int numPivots)
@@ -130,6 +139,26 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
     return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
 }
 
+CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other) const
+{
+    CanonicalTDH child;
+    child.k = k;
+    child.generation = generation;
+    int cross_point = QRandomGenerator::global()->generate() % nodes.length();
+
+    // add the first 'cross_point' pivots from the first parent
+    for(int i = 0; i < cross_point; i++){
+        child.nodes.append(nodes.at(i));
+    }
+
+    // add the remaining pivots from the second parent
+    for(int i = cross_point; i < nodes.length(); i++){
+        child.nodes.append(other.nodes.at(i));
+    }
+
+    return child;
+}
+
 void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
 {
     isCalculated = false;
@@ -158,23 +187,67 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
     nodes = newList;
 }
 
-int xyPairing(int x, int y){
-    if(x > y){
-        return (x^2) + x + y;
-    }else{
-        return (y^2) + x;
+QString CanonicalTDH::toCSVString(int index)
+{
+    //Fields are: index, generation, score, number of nodes, 1x.1y.2x.2y.3x.3y
+    QString ret, nodesStr;
+    QStringList seperateList;
+    QStringList stringNodes;
+    for(int i = 0; i < k; i++){
+        Node add = nodes.at(i);
+        stringNodes.append(QString::number(add.x));
+        stringNodes.append(QString::number(add.y));
     }
+    nodesStr = stringNodes.join('.');
+
+    seperateList.append(QString::number(index));
+    seperateList.append(QString::number(generation));
+    seperateList.append(QString::number(score));
+    seperateList.append(QString::number(k));
+    seperateList.append(nodesStr);
+
+    ret = seperateList.join(',');
+
+    return ret;
+}
+
+CanonicalTDH CanonicalTDH::fromCSVString(QString str)
+{
+    //Fields are: index, generation, score, number of nodes, 1x.1y.2x.2y.3x.3y
+    CanonicalTDH ret;
+    QStringList fieldList = str.split(',');
+
+    ret.generation = fieldList.at(1).toInt();
+    ret.score = fieldList.at(2).toInt();
+    ret.k = fieldList.at(3).toInt();
+
+    QStringList coordinateList = fieldList.at(4).split('.');
+    for(int i = 0; i < coordinateList.length(); i += 2){
+        Node add;
+        add.x = coordinateList.at(i).toInt();
+        add.y = coordinateList.at(i+1).toInt();
+        ret.nodes.append(add);
+    }
+
+    return ret;
 }
 
 struct coordinate{
     int x;
     int y;
 
+    int pair() const{
+        if(x > y){
+            return (x^2) + x + y;
+        }else{
+            return (y^2) + x;
+        }
+    }
     bool operator == (coordinate a) const{
         return (x == a.x) && (y == a.y);
     }
     bool operator < (coordinate a) const{
-        return xyPairing(x,y) < xyPairing(a.x,a.y);
+        return pair() < a.pair();
     }
 };
 

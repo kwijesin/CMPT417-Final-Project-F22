@@ -1,31 +1,83 @@
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <vector>
+#include <QRandomGenerator>
 #include "simulation.h"
 
 void Population::initialize(int popCount)
 {
-    //TODO
+    for (int i = 0; i < popCount; i++)
+    {
+        CanonicalTDH tdh = CanonicalTDH(0, 0);
+        tdh.randomizeNodes(*map);
+        population.append(tdh);
+    }
+
     generation = 0;
 }
 
 void Population::testPopulation(Solver solver, QList<Instance> instances)
 {
-    //TODO
-
+    for (int i = 0; i < population.length(); i++)
+    {
+        CanonicalTDH* tdh = &(population.data()[i]);
+        tdh->calculateTDH(*map);
+        for(int j = 0; j < instances.length(); j++){
+            int pathLen;
+            solver.solve(*map, instances.at(j), &pathLen, &tdh->score, tdh);
+        }
+    }
     generation++;
 }
 
 void Population::keepBest(int count)
 {
-    //TODO
+    QList<CanonicalTDH> newPopulation;
+
+    // Push all members of the population onto a max heap
+    auto cmp = [](CanonicalTDH a, CanonicalTDH b) { return a.score < b.score; };
+    std::priority_queue<CanonicalTDH, std::vector<CanonicalTDH>, decltype(cmp)> pq(cmp);
+    for (int i = 0; i < population.length(); i++)
+    {
+        pq.push(population.at(i));
+    }
+
+    // pop the best 'count' members of the population from the max heap
+    for (int i = 0; i < count; i++)
+    {
+        newPopulation.append(pq.top());
+        pq.pop();
+    }
+
+    population = newPopulation;
 }
 
 void Population::crossover(int count)
 {
-    //TODO
+    QList<CanonicalTDH> newPopulation;
+    for (int i = 0; i < count; i++)
+    {
+        // pick two random members of the population
+        int a = QRandomGenerator::global()->bounded(population.length());
+        int b = QRandomGenerator::global()->bounded(population.length());
+        while (a == b){
+            b = QRandomGenerator::global()->bounded(population.length());
+        }
+
+        // cross them
+        CanonicalTDH childTDH = population.at(a).crossover(population.at(b));
+        newPopulation.append(childTDH);
+    }
+    population = newPopulation;
 }
 
 void Population::mutate(float mutationFactor)
 {
-    //TODO
+    for (int i = 0; i < population.length(); i++)
+    {
+        population.data()[i].mutateNodes(*map, mutationFactor);
+    }
 }
 
 CanonicalTDH Population::getBest()
@@ -39,18 +91,52 @@ CanonicalTDH Population::getBest()
 
 void exportToCSV(Population population, QString filename)
 {
-    //TODO
+    std::ofstream f(filename.toStdString(), std::ofstream::out);
+    f << "index,generation,score,k" << std::endl;
+    QList<CanonicalTDH>::iterator i;
+    int ind = 0;
+    for (i = population.population.begin(); i != population.population.end(); i++)
+    {
+        f << i->toCSVString(ind).toStdString() << std::endl;
+        ind++;
+    }
+    f.close();
 }
 
 void exportToCSV(CanonicalTDH heuristic, QString filename)
 {
-    //TODO
+    QFile file(filename);
+    if(!file.exists())
+        return;
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream fileOut(&file);
+    fileOut << heuristic.toCSVString(0) << "\n";
+
+    file.close();
 }
 
 QList<CanonicalTDH> importFromCSV(QString filename)
 {
-    //TODO
     QList<CanonicalTDH> ret;
+    QFile file(filename);
+    QString line;
+    if(!file.exists())
+        return ret;
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return ret;
+
+    line = file.readLine();
+    while(!file.atEnd()){
+        line = file.readLine();
+        if(line.endsWith('\n'))
+            line.chop(1);
+        CanonicalTDH tdh = CanonicalTDH::fromCSVString(line);
+        ret.append(tdh);
+    }
+
+    file.close();
     return ret;
 }
 

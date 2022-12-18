@@ -23,6 +23,8 @@ class CanonicalTDH : public Heuristic{
     CanonicalTDH(){}
     ~CanonicalTDH(){}
 
+    CanonicalTDH(int generation, int score);
+
     void setK(int numPivots);
 
     /*!
@@ -47,12 +49,22 @@ class CanonicalTDH : public Heuristic{
     int getHeuristic(Node N, Node Goal) const;
 
     /*!
+     * \brief crossoverNodes
+     *  Crossover function that takes two heuristics and returns a new one with a mix of the two
+     *  The crossover point is a random number between 0 and k
+     */
+    CanonicalTDH crossover(CanonicalTDH other) const;
+
+    /*!
      * \brief mutateNodes
      *  Mutates the nodes according to some mutation factor. The higher the factor, the wilder the mutation
      *  Mutations should move the pivots K around by some gaussian distribution of adjacent nodes
      *  with a small chance to replace one of the pivots with a completely new one
      */
     void mutateNodes(Map map, float mutationFactor);
+
+    QString toCSVString(int index);
+    static CanonicalTDH fromCSVString(QString str);
 
     bool isCalculated;
 	
