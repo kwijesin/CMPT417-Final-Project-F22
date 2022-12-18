@@ -52,11 +52,11 @@ void MainWindowControls::on_pushButtonStart_clicked()
     QString command = ui->listWidgetCommandList->takeItem(0)->text();
     QStringList argList = command.split(" ");
     QString currentPath = QCoreApplication::applicationDirPath() + "/";
-    QString instanceName = argList.at(MAP_IND);
+    QString instanceName = argList.at(INSTANCE_IND);
 
     if(!QFile::exists(currentPath + instanceName) && instanceName != "random")
         return;
-    if(!QFile::exists(currentPath + argList.at(INSTANCE_IND)))
+    if(!QFile::exists(currentPath + argList.at(MAP_IND)))
         return;
 
     mainSimulationThread = new SimulationThread();
@@ -109,7 +109,16 @@ void MainWindowControls::on_pushButtonBrowseCommand_clicked()
         line = file.readLine();
         if(line.endsWith("\n"))
             line.chop(1);
-        ui->listWidgetCommandList->addItem(line);
+
+        QStringList argList = line.split(" ");
+        QString currentPath = QCoreApplication::applicationDirPath() + "/";
+        bool mapExists = QFile::exists(currentPath+argList.at(MAP_IND));
+        bool instanceExists = QFile::exists(currentPath+argList.at(INSTANCE_IND)) || argList.at(INSTANCE_IND) == "random";
+
+        QListWidgetItem* newItem = new QListWidgetItem(line);
+        if(!mapExists || !instanceExists)
+            newItem->setForeground(QBrush(Qt::red));
+        ui->listWidgetCommandList->addItem(newItem);
     }
 
     if(ui->listWidgetCommandList->count() > 0){
