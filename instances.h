@@ -11,7 +11,7 @@ struct Node{
 
     //used for pathfinding
     int h;
-    int g;
+    int g = 0;
     int f() const{
         return h+g;
     }
@@ -52,6 +52,23 @@ class Map{
 
     int numOpenNodes(){
         return N;
+    }
+
+    QList<Node> adjacentNodes(Node expanded){
+        QList<Node> ret;
+        if(!isOpen(expanded)){
+            return ret;
+        }
+        int dirX[] = {-1, -1, 1, 1};
+        int dirY[] = {-1, 1, -1, 1};
+        for(int i = 0; i < 3; i++){
+            Node newNode = expanded;
+            newNode.x += dirX[i];
+            newNode.y += dirY[i];
+            if(isOpen(newNode))
+                ret.append(newNode);
+        }
+        return ret;
     }
 
     Node getRandomValidNode();

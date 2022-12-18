@@ -15,22 +15,6 @@ void CanonicalTDH::setK(int numPivots)
     k = numPivots;
 }
 
-
-//returns list of valid nodes adjacent to 'expanded'
-QList<Node> expandNode(Node expanded, Map map){
-    QList<Node> ret;
-    int dirX[] = {-1, -1, 1, 1};
-    int dirY[] = {-1, 1, -1, 1};
-    for(int i = 0; i < 3; i++){
-        Node newNode = expanded;
-        newNode.x += dirX[i];
-        newNode.y += dirY[i];
-        if(map.isOpen(newNode))
-            ret.append(newNode);
-    }
-    return ret;
-}
-
 void CanonicalTDH::calculateTDH(Map map)
 {
     //Assumes that K and nodes are initialized by some other means
@@ -74,7 +58,7 @@ void CanonicalTDH::calculateTDH(Map map)
             //expand everything at the current depth
             while(!currentOpenList->empty() && currentOpenList->begin()->f() <= depth){
                 Node expandingNode = currentOpenList->pop();
-                QList<Node> expandingNodes = expandNode(expandingNode, map);
+                QList<Node> expandingNodes = map.adjacentNodes(expandingNode);
 
                 //if the node is a pivot k and hasn't been filled in yet, fill in the primary array
                 if(nodes.contains(expandingNode)){
@@ -163,24 +147,27 @@ struct coordinate{
     int y;
 };
 
-QHash<coordinate, bool> getUnmarkedList(Map map){
-    QHash<coordinate, bool> ret;
+QSet<coordinate> getUnmarkedList(Map map){
+    QSet<coordinate> ret;
     for(int y = 0; y < map.ySize; y++){
         for(int x = 0; x < map.ySize; x++){
             if(map.map[x][y]){
                 coordinate add;
                 add.x = x;
                 add.y = y;
-                ret.insert(add,false);
+                ret.insert(add);
             }
         }
     }
     return ret;
 }
 
-template <typename K, typename V> K randomKeyFromHash(QHash<K, V> list){
+template <typename K> K randomKeyFromHash(QSet<K> list){
     int chosenInd = QRandomGenerator::global()->bounded(list.count());
-    return list.keys().at(chosenInd);
+    QSetIterator<K> itr(list);
+    for(int i = 0; i < chosenInd-1; i++)
+        itr.next();
+    return itr.next();
 }
 
 void AlgorithmicCanonicalTDH::calculateTDH(Map map)
@@ -201,8 +188,8 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
     int actualK = 0;
     while(!validTo10Percent){
         nodes.clear();
-        QHash<coordinate, bool> markedList;
-        QHash<coordinate, bool> unmarkedList = getUnmarkedList(map);
+        QSet<coordinate> markedList;
+        QSet<coordinate> unmarkedList = getUnmarkedList(map);
         actualK = 0;
 
         NodeHeap openList;
@@ -218,7 +205,7 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
             newPivot.y = root.y;
             newPivot.g = 0;
             nodes.append(newPivot);
-            markedList.insert(root, true);
+            markedList.insert(root);
             unmarkedList.remove(root);
             actualK++;
 
@@ -228,7 +215,7 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
             openList.push(newPivot);
             while(numNodesInZone < areaOfZone && !openList.empty()){
                 Node expandingNode = openList.pop();
-                QList<Node> childNodes = expandNode(expandingNode, map);
+                QList<Node> childNodes = map.adjacentNodes(expandingNode);
                 for(int i = 0; i < childNodes.length(); i++){
                     Node childNode = childNodes.at(i);
                     coordinate child;
@@ -236,7 +223,7 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
                     child.y = childNode.y;
                     if(unmarkedList.contains(child)){
                         unmarkedList.remove(child);
-                        markedList.insert(child, true);
+                        markedList.insert(child);
                         childNode.g = expandingNode.g + 1;
                         numNodesInZone++;
                     }

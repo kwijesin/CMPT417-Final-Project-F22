@@ -30,8 +30,8 @@ class Solver{
 	Solver(){}
 	~Solver(){}
 
-    virtual bool solve(Map map, Instance instance, int* pathLength, Heuristic* heuristic = NULL) const;
-    virtual bool solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic = NULL) const;
+    virtual bool solve(Map map, Instance instance, int* pathLength, int* nExpansions, Heuristic* heuristic = NULL) const;
+    virtual bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic = NULL) const;
 
 };
 
@@ -44,7 +44,7 @@ class AStar : public Solver{
 	AStar(){}
 	~AStar(){}
 
-    bool solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic = NULL) const;
+    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic) const;
 
 };
 
@@ -57,7 +57,7 @@ class IDAStar : public Solver{
 	IDAStar(){}
 	~IDAStar(){}
 
-    bool solve(Map map, Instance instance, QList<Node>* path, Heuristic* heuristic = NULL) const;
+    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic) const;
 };
 
 #endif
