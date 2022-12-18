@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include "simulation.h"
 
 Population::Population(const Map* map) : map(map) {}
@@ -7,7 +9,7 @@ void Population::initialize(int popCount)
     for (int i = 0; i < popCount; i++)
     {
         // 
-        population.append(CanonicalTDH(0));
+        population.append(CanonicalTDH::CanonicalTDH(0, 0));
     }
 
     generation = 0;
@@ -18,7 +20,7 @@ void Population::testPopulation(Solver solver, QList<Instance> instances)
     QList<Instance>::iterator i;
     for (i = instances.begin(); i != instances.end(); i++)
     {
-        Solver::solve(map, *i, , &population.at(i));
+        Solver::solve(map, *i, &(population.at(i).nodes), &(population.at(i)));
     }
 
     generation++;
@@ -26,7 +28,8 @@ void Population::testPopulation(Solver solver, QList<Instance> instances)
 
 void Population::keepBest(int count)
 {
-    //TODO
+    CanonicalTDH best = getBest();
+    
 }
 
 void Population::crossover(int count)
@@ -50,18 +53,46 @@ CanonicalTDH Population::getBest()
 
 void exportToCSV(Population population, QString filename)
 {
-    //TODO
+    std::ofstream f(filename);
+    f << "index,generation,score,k" << std::endl;
+    QList<CanonicalTDH>::iterator i;
+    for (i = population.population.begin(); i != population.population.end(); i++)
+    {
+        f << i << "," << i->generation << "," << i->score << "," << i->nodes.count() << std::endl;
+    }
+    f.close();
 }
 
 void exportToCSV(CanonicalTDH heuristic, QString filename)
 {
-    //TODO
+    
 }
 
 QList<CanonicalTDH> importFromCSV(QString filename)
 {
-    //TODO
     QList<CanonicalTDH> ret;
+
+    std::ifstream f(filename);
+    std::getline(f, line); // skip the first line
+    std::string line, col_val;
+    if (f.good())
+    {
+        std::getline(f, line);
+        while (std::getline(f, line))
+        {
+            CanonicalTDH tdh;
+            std::stringstream ss(line);
+            std::getline(ss, col_val, ','); // skip the index
+            std::getline(ss, col_val, ','); // get the generation in col_val
+            tdh.generation = col_val.toInt();
+            std::getline(ss, col_val, ','); // get the score in col_val
+            tdh.score = col_val.toInt();
+            std::getline(ss, col_val, ','); // skip the number of nodes
+
+            ret.append(tdh);
+        }
+    }
+    f.close();
     return ret;
 }
 

@@ -65,7 +65,7 @@ class Population{
  * \brief exportToCSV
  * Exports an entire population to a csv file.
  * Each member of the population is on it's own line.
- * Fields are: index,generation,score,[points k]
+ * Fields are: index, generation, score, number of nodes
  */
 void exportToCSV(Population population, QString filename);
 
