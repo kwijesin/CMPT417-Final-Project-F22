@@ -16,7 +16,7 @@ bool Solver::solve(Map map, Instance instance, QList<Node>* path, int* nExpansio
 {
     int numExpansions = 0;
     NodeHeap openList;
-    QSet<Node> visitedNodes;
+    std::set<Node> visitedNodes;
     bool goalFound = false;
     openList.push(instance.start);
     visitedNodes.insert(instance.start);
@@ -30,7 +30,7 @@ bool Solver::solve(Map map, Instance instance, QList<Node>* path, int* nExpansio
         QList<Node> adjacent = map.adjacentNodes(expandingNode);
         for(int i = 0; i < adjacent.length(); i++){
             Node child = adjacent.at(i);
-            if(!visitedNodes.contains(child)){
+            if(visitedNodes.find(child) == visitedNodes.end()){
                 visitedNodes.insert(child);
                 openList.push(child);
             }

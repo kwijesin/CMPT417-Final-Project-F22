@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 #include <set>
+#include <iostream>
 
 int Heuristic::getHeuristic(Node N, Node Goal) const
 {
@@ -31,6 +32,9 @@ void CanonicalTDH::calculateTDH(Map map)
 
     //initialize calculation variables
     QList<NodeHeap> openLists; //NodeHeap is sorted
+    openLists.fill(NodeHeap(),k);
+    QList<QSet<Node>> discoveredSets;
+    discoveredSets.fill(QSet<Node>(),k);
     int numPrimaryFilled = 0;   //up to k*k
     int numSecondaryFilled = 0; //up to map.N
     int depth = 0;
@@ -42,6 +46,7 @@ void CanonicalTDH::calculateTDH(Map map)
         pivot.parentx = pivot.x;
         pivot.parenty = pivot.y;
         openLists[i].push(pivot);
+        discoveredSets[i].insert(pivot);
     }
 
     //run K concurrent depth first searches, advancing 1 depth at a time
@@ -49,7 +54,8 @@ void CanonicalTDH::calculateTDH(Map map)
         for(int i = 0; i < k; i++){
             Node currentPivot = nodes.at(i);
             int currentPivotInd = nodes.indexOf(currentPivot);
-            NodeHeap * currentOpenList = &openLists.data()[currentPivotInd];    //access the data of the openList directly
+            NodeHeap * currentOpenList = &openLists.data()[currentPivotInd];
+            QSet<Node> * currentDiscoveredNodes = &discoveredSets.data()[currentPivotInd];
 
             if(currentOpenList->empty()){
                 continue;
@@ -63,11 +69,11 @@ void CanonicalTDH::calculateTDH(Map map)
                 //if the node is a pivot k and hasn't been filled in yet, fill in the primary array
                 if(nodes.contains(expandingNode)){
                     int encounteredPivotInd = nodes.indexOf(expandingNode);
-                    if(primary[currentPivotInd][encounteredPivotInd] != -1){
+                    if(primary[currentPivotInd][encounteredPivotInd] == -1){
                         primary[currentPivotInd][encounteredPivotInd] = expandingNode.g;
                         numPrimaryFilled++;
                     }
-                    if(primary[encounteredPivotInd][currentPivotInd] != -1){
+                    if(primary[encounteredPivotInd][currentPivotInd] == -1){
                         primary[encounteredPivotInd][currentPivotInd] = expandingNode.g;
                         numPrimaryFilled++;
                     }
@@ -81,8 +87,12 @@ void CanonicalTDH::calculateTDH(Map map)
                 }
 
                 //expand the node
-                for(int j = 0; i < expandingNodes.length(); j++){
+                for(int j = 0; j < expandingNodes.length(); j++){
                     Node childNode = expandingNodes.at(j);
+                    if(currentDiscoveredNodes->contains(childNode)){
+                        continue;
+                    }
+                    currentDiscoveredNodes->insert(childNode);
                     childNode.g = expandingNode.g + 1;
                     childNode.parentx = expandingNode.x;
                     childNode.parenty = expandingNode.y;
@@ -91,6 +101,10 @@ void CanonicalTDH::calculateTDH(Map map)
             }
         }
         depth++;
+        if(depth > map.N){
+            //something's terribly wrong
+            throw std::runtime_error("Depth Overrun");
+        }
     }
 
     isCalculated = true;
@@ -101,7 +115,9 @@ void CanonicalTDH::randomizeNodes(Map map)
     isCalculated = false;
     nodes.clear();
     while(nodes.length() < k){
-        nodes.append(map.getRandomValidNode());
+        Node newNode = map.getRandomValidNode();
+        if(!nodes.contains(newNode))
+            nodes.append(newNode);
     }
 }
 
@@ -142,16 +158,35 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
     nodes = newList;
 }
 
+int xyPairing(int x, int y){
+    if(x > y){
+        return (x^2) + x + y;
+    }else{
+        return (y^2) + x;
+    }
+}
+
 struct coordinate{
     int x;
     int y;
+
+    bool operator == (coordinate a) const{
+        return (x == a.x) && (y == a.y);
+    }
+    bool operator < (coordinate a) const{
+        return xyPairing(x,y) < xyPairing(a.x,a.y);
+    }
 };
+
+size_t qHash(const coordinate &key, size_t seed){
+    return qHashMulti(seed, key.x,key.y);
+}
 
 QSet<coordinate> getUnmarkedList(Map map){
     QSet<coordinate> ret;
     for(int y = 0; y < map.ySize; y++){
-        for(int x = 0; x < map.ySize; x++){
-            if(map.map[x][y]){
+        for(int x = 0; x < map.xSize; x++){
+            if(map.isOpen(x,y)){
                 coordinate add;
                 add.x = x;
                 add.y = y;
@@ -163,8 +198,8 @@ QSet<coordinate> getUnmarkedList(Map map){
 }
 
 template <typename K> K randomKeyFromHash(QSet<K> list){
-    int chosenInd = QRandomGenerator::global()->bounded(list.count());
-    QSetIterator<K> itr(list);
+    int chosenInd = QRandomGenerator::global()->bounded(list.size());
+    QSetIterator itr(list);
     for(int i = 0; i < chosenInd-1; i++)
         itr.next();
     return itr.next();
@@ -186,58 +221,61 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
     const int areaOfZone = map.N/k;
     bool validTo10Percent = false;
     int actualK = 0;
-    while(!validTo10Percent){
-        nodes.clear();
-        QSet<coordinate> markedList;
-        QSet<coordinate> unmarkedList = getUnmarkedList(map);
-        actualK = 0;
 
+    nodes.clear();
+    QSet<coordinate> markedList;
+    QSet<coordinate> unmarkedList = getUnmarkedList(map);
+    actualK = 0;
+
+    NodeHeap openList;
+    int numNodesMarked = 0;   //up to x*y
+    while(numNodesMarked < map.N){
+        int numNodesInZone = 1;
+
+        //find a random unmarked point to use as a new pivot
+        coordinate root = randomKeyFromHash(unmarkedList);
+        Node newPivot;
+        newPivot.x = root.x;
+        newPivot.y = root.y;
+        newPivot.g = 0;
+        nodes.append(newPivot);
+        markedList.insert(root);
+        numNodesMarked++;
+        unmarkedList.remove(root);
+        actualK++;
+
+        //DFS areaOfZone points branching from that point
         NodeHeap openList;
-        int numNodesMarked = 0;   //up to k*k
-
-        while(numNodesMarked < map.N){
-            int numNodesInZone = 1;
-
-            //find a random unmarked point to use as a new pivot
-            coordinate root = randomKeyFromHash(unmarkedList);
-            Node newPivot;
-            newPivot.x = root.x;
-            newPivot.y = root.y;
-            newPivot.g = 0;
-            nodes.append(newPivot);
-            markedList.insert(root);
-            unmarkedList.remove(root);
-            actualK++;
-
-            //DFS areaOfZone points branching from that point
-            NodeHeap openList;
-            newPivot.g = 0;
-            openList.push(newPivot);
-            while(numNodesInZone < areaOfZone && !openList.empty()){
-                Node expandingNode = openList.pop();
-                QList<Node> childNodes = map.adjacentNodes(expandingNode);
-                for(int i = 0; i < childNodes.length(); i++){
-                    Node childNode = childNodes.at(i);
-                    coordinate child;
-                    child.x = childNode.x;
-                    child.y = childNode.y;
-                    if(unmarkedList.contains(child)){
-                        unmarkedList.remove(child);
-                        markedList.insert(child);
-                        childNode.g = expandingNode.g + 1;
-                        numNodesInZone++;
-                    }
+        newPivot.g = 0;
+        openList.push(newPivot);
+        while(numNodesInZone < areaOfZone && !openList.empty()){
+            Node expandingNode = openList.pop();
+            QList<Node> childNodes = map.adjacentNodes(expandingNode);
+            for(int i = 0; i < childNodes.length(); i++){
+                Node childNode = childNodes.at(i);
+                coordinate child;
+                child.x = childNode.x;
+                child.y = childNode.y;
+                if(unmarkedList.contains(child)){
+                    unmarkedList.remove(child);
+                    markedList.insert(child);
+                    numNodesMarked++;
+                    childNode.g = expandingNode.g + 1;
+                    openList.push(childNode);
+                    numNodesInZone++;
                 }
             }
         }
-
-        //check if we got within 10% k
-        if(abs(actualK - k) < float(k)/10)
-            validTo10Percent = true;
     }
 
-    k = actualK;
+    //Sample the set of nodes to within 10%
+    QList<Node> sampledNodes;
+    while(sampledNodes.length() < k){
+        int randomInd = QRandomGenerator::global()->bounded(nodes.length());
+        sampledNodes.append(nodes.takeAt(randomInd));
+    }
 
+    nodes = sampledNodes;
     CanonicalTDH::calculateTDH(map);
 
     isCalculated = true;

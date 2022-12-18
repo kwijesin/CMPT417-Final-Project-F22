@@ -57,7 +57,7 @@ class CanonicalTDH : public Heuristic{
     bool isCalculated;
 	
     int score;  /*! Contains the last score that this heuristic got. Should be changed by the population evaluation function, therefore this heuristic should be passed by reference */
-	int generation;
+    int generation = 0;
     QList<Node> nodes;  /*! Ordered list of pivot nodes: no repeats allowed */
 
 	struct SecondaryData{

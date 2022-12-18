@@ -137,3 +137,35 @@ void MainWindowControls::on_pushButtonReset_clicked()
     ui->listWidgetCommandList->clear();
 }
 
+
+void MainWindowControls::on_pushButtonAlgoHeuristic_clicked()
+{
+    AlgorithmicCanonicalTDH TDH;
+    TDH.setK(ui->spinBoxK->value());
+    TDH.calculateTDH(currentMap);
+    ui->labelMap->setHeuristic(currentMap, TDH);
+}
+
+
+void MainWindowControls::on_pushButton_clicked()
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open map", "", "*.map");
+    if(!QFile::exists(filename))
+        return;
+
+    currentMapFilename = filename;
+    ui->pushButton->setText("Current Map:" + filename);
+    currentMap = Map(currentMapFilename);
+    ui->labelMap->setMap(currentMap);
+}
+
+
+void MainWindowControls::on_pushButtonRandHeuristic_clicked()
+{
+    CanonicalTDH TDH;
+    TDH.setK(ui->spinBoxK->value());
+    TDH.randomizeNodes(currentMap);
+    TDH.calculateTDH(currentMap);
+    ui->labelMap->setHeuristic(currentMap, TDH);
+}
+

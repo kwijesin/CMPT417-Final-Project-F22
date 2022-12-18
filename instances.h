@@ -10,13 +10,13 @@ struct Node{
     int y = NULL;
 
     //used for pathfinding
-    int h;
+    int h = 0;
     int g = 0;
     int f() const{
         return h+g;
     }
-    int parentx;
-    int parenty;
+    int parentx = 0;
+    int parenty = 0;
 
     bool operator < (Node a) const{
         return f() < a.f();
@@ -27,7 +27,7 @@ struct Node{
     }
 };
 
-typedef QList<Node> Path;
+size_t qHash(const Node &key, size_t seed);
 
 /*!
  * Opens .txt files from the MAPF benchmarks website:
@@ -44,7 +44,7 @@ class Map{
 	}
 
     bool isOpen(int x, int y) const{
-		if(x <= xSize && y < ySize){
+        if(((x < xSize) && (x >= 0)) && ((y < ySize) && (y >= 0))){
             return map[x][y];
 		}
 		return false;
@@ -59,9 +59,9 @@ class Map{
         if(!isOpen(expanded)){
             return ret;
         }
-        int dirX[] = {-1, -1, 1, 1};
-        int dirY[] = {-1, 1, -1, 1};
-        for(int i = 0; i < 3; i++){
+        int dirX[] = {0, 0, -1, 1};
+        int dirY[] = {-1, 1, 0, 0};
+        for(int i = 0; i < 4; i++){
             Node newNode = expanded;
             newNode.x += dirX[i];
             newNode.y += dirY[i];

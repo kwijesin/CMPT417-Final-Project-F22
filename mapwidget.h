@@ -23,6 +23,7 @@ public:
     {
         map = m;
         hasMap = true;
+        hasHeuristic = false;
         redraw();
     }
 
@@ -32,7 +33,9 @@ public:
             setMap(Map(filename));
     }
 
-    void setHeuristic(CanonicalTDH h){
+    void setHeuristic(Map m, CanonicalTDH h){
+        map = m;
+        hasMap = true;
         heuristic = h;
         hasHeuristic = true;
         redraw();
@@ -47,34 +50,35 @@ public:
             //choose a random light blue-greenish color for each pivot K
             QList<QColor> colors;
             for(int i = 0; i < heuristic.k; i++){
-                int red = QRandomGenerator::global()->bounded(0,50);
-                int green = QRandomGenerator::global()->bounded(150,255);
-                int blue = QRandomGenerator::global()->bounded(150,255);
+                int red = QRandomGenerator::global()->bounded(0,200);
+                int green = QRandomGenerator::global()->bounded(100,255);
+                int blue = QRandomGenerator::global()->bounded(100,255);
                 QColor color = QColor::fromRgb(red,green,blue);
                 colors.append(color);
             }
 
             //paint each pixel the color of the nearest pivot
             for(int y = 0; y < map.ySize; y++){
-                for(int x = 0; x < map.ySize; x++){
+                for(int x = 0; x < map.xSize; x++){
                     Node nearestPivot = heuristic.secondary[x][y].closestPivot;
                     int pivotIndex = heuristic.nodes.indexOf(nearestPivot);
-                    pixPainter.setPen(map.map[x][y] ? colors.at(pivotIndex) : Qt::black);
+                    pixPainter.setPen(map.isOpen(x,y) ? colors.at(pivotIndex) : Qt::black);
                     pixPainter.drawPoint(x,y);
                 }
             }
 
-            //draw red circles around each pivot K
+            //draw red on each pivot K
             pixPainter.setPen(Qt::red);
             for(int i = 0; i < heuristic.nodes.length(); i++){
                 Node toDraw = heuristic.nodes.at(i);
-                pixPainter.drawEllipse(toDraw.x, toDraw.y, 2, 2);
+                //pixPainter.drawEllipse(toDraw.x, toDraw.y, 2, 2);
+                pixPainter.drawPoint(toDraw.x, toDraw.y);
             }
         }else{
             //draw map normally
             for(int y = 0; y < map.ySize; y++){
                 for(int x = 0; x < map.ySize; x++){
-                    pixPainter.setPen(map.map[x][y] ? Qt::white : Qt::black);
+                    pixPainter.setPen(map.isOpen(x,y) ? Qt::white : Qt::black);
                     pixPainter.drawPoint(x,y);
                 }
             }

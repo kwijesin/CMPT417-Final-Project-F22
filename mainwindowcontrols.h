@@ -28,8 +28,17 @@ private slots:
 
     void on_pushButtonReset_clicked();
 
+    void on_pushButtonAlgoHeuristic_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_pushButtonRandHeuristic_clicked();
+
 private:
     Ui::MainWindowControls *ui;
     SimulationThread* mainSimulationThread;
+
+    QString currentMapFilename;
+    Map currentMap;
 };
 #endif // MAINWINDOWCONTROLS_H

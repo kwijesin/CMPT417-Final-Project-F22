@@ -16,6 +16,10 @@
 #define IND_GOALY 7
 #define IND_LENGTH 8
 
+size_t qHash(const Node &key, size_t seed){
+    return qHashMulti(seed, key.x, key.y);
+}
+
 Map::Map()
 {
     xSize = 0;
