@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 #include <set>
+#include <QRandomGenerator>
 
 int Heuristic::getHeuristic(Node N, Node Goal) const
 {
@@ -117,6 +118,26 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
     int indNearestN = nodes.indexOf(nearestN);
     int indNearestG = nodes.indexOf(nearestG);
     return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
+}
+
+CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other)
+{
+    CanonicalTDH child;
+    child.k = k;
+    child.generation = generation;
+    int cross_point = QRandomGenerator::global()->generate() % nodes.length();
+
+    // add the first 'cross_point' pivots from the first parent
+    for(int i = 0; i < cross_point; i++){
+        child.nodes.append(nodes.at(i));
+    }
+
+    // add the remaining pivots from the second parent
+    for(int i = cross_point; i < nodes.length(); i++){
+        child.nodes.append(other.nodes.at(i));
+    }
+
+    return child;
 }
 
 void CanonicalTDH::mutateNodes(Map map, float mutationFactor)

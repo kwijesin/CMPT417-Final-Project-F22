@@ -1,5 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <queue>
+#include <vector>
+#include <QRandomGenerator>
 #include "simulation.h"
 
 Population::Population(const Map* map) : map(map) {}
@@ -8,8 +11,10 @@ void Population::initialize(int popCount)
 {
     for (int i = 0; i < popCount; i++)
     {
-        // 
-        population.append(CanonicalTDH::CanonicalTDH(0, 0));
+        CanonicalTDH tdh = CanonicalTDH::CanonicalTDH(0, 0);
+        tdh.randomizeNodes(map);
+        tdh.calculateTDH(map);
+        population.append(tdh);
     }
 
     generation = 0;
@@ -20,7 +25,8 @@ void Population::testPopulation(Solver solver, QList<Instance> instances)
     QList<Instance>::iterator i;
     for (i = instances.begin(); i != instances.end(); i++)
     {
-        Solver::solve(map, *i, &(population.at(i).nodes), &(population.at(i)));
+        CanonicalTDH tdh = population.at(i);
+        Solver::solve(map, *i, &(tdh.nodes), &(tdh.score), &tdh);
     }
 
     generation++;
@@ -28,18 +34,53 @@ void Population::testPopulation(Solver solver, QList<Instance> instances)
 
 void Population::keepBest(int count)
 {
-    CanonicalTDH best = getBest();
-    
+    QList<CanonicalTDH> newPopulation;
+
+    // Push all members of the population onto a max heap
+    auto cmp = [](CanonicalTDH a, CanonicalTDH b) { return a.score < b.score; };
+    std::priority_queue<CanonicalTDH, std::vector<CanonicalTDH>, decltype(cmp)> pq(cmp);
+    for (int i = 0; i < population.length(); i++)
+    {
+        pq.push(population.at(i));
+    }
+
+    // pop the best 'count' members of the population from the max heap
+    for (int i = 0; i < count; i++)
+    {
+        newPopulation.append(pq.top());
+        pq.pop();
+    }
+
+    population = newPopulation;
 }
 
 void Population::crossover(int count)
 {
-    //TODO
+    QList<CanonicalTDH> newPopulation;
+    for (int i = 0; i < count; i++)
+    {
+        // pick two random members of the population
+        int a = QRandomGenerator::global()->generate() % population.length();
+        int b = QRandomGenerator::global()->generate() % population.length();
+        while (a == b)
+        {
+            b = QRandomGenerator::global()->generate() % population.length();
+        }
+
+        // cross them
+        CanonicalTDH tdh = population.at(a).crossoverNodes(population.at(b));
+        tdh.calculateTDH(map);
+        newPopulation.append(tdh);
+    }
+    population = newPopulation;
 }
 
 void Population::mutate(float mutationFactor)
 {
-    //TODO
+    for (int i = 0; i < population.length(); i++)
+    {
+        population.at(i).mutateNodes(map, mutationFactor);
+    }
 }
 
 CanonicalTDH Population::getBest()
@@ -58,7 +99,7 @@ void exportToCSV(Population population, QString filename)
     QList<CanonicalTDH>::iterator i;
     for (i = population.population.begin(); i != population.population.end(); i++)
     {
-        f << i << "," << i->generation << "," << i->score << "," << i->nodes.count() << std::endl;
+        f << i << "," << i->generation << "," << i->score << "," << i->nodes.length() << std::endl;
     }
     f.close();
 }

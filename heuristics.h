@@ -23,6 +23,8 @@ class CanonicalTDH : public Heuristic{
     CanonicalTDH(){}
     ~CanonicalTDH(){}
 
+    CanonicalTDH(int generation, int score);
+
     void setK(int numPivots);
 
     /*!
@@ -45,6 +47,13 @@ class CanonicalTDH : public Heuristic{
      *  returns primary(N,Goal) - secondary(N.x, N.y) - secondary(Goal.x, Goal.y)
      */
     int getHeuristic(Node N, Node Goal) const;
+
+    /*!
+     * \brief crossoverNodes
+     *  Crossover function that takes two heuristics and returns a new one with a mix of the two
+     *  The crossover point is a random number between 0 and k
+     */
+    CanonicalTDH crossover(CanonicalTDH other);
 
     /*!
      * \brief mutateNodes
