@@ -1,4 +1,4 @@
 Berlin_1_256.map Berlin_1_256-even-1.scen default_command.out 100 20 100 4 1.0
-Berlin_1_256.map Berlin_1_256-even-1.scen default_command.out 100 50 100 4 1.0
+Berlin_1_256.map random default_command.out 100 50 100 4 1.0
 Berlin_1_256.map Berlin_1_256-even-1.scen default_command.out 100 30 100 4 1.0
 Berlin_1_256.map Berlin_1_256-even-1.scen default_command.out 100 22 100 4 1.0

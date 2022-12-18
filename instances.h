@@ -6,20 +6,24 @@
 
 struct Node{
     //normal nodes
-	int x;
-    int y;
+    int x = NULL;
+    int y = NULL;
 
     //used for pathfinding
     int h;
-    int g;
-    int f(){
+    int g = 0;
+    int f() const{
         return h+g;
     }
     int parentx;
     int parenty;
 
-    bool operator < (Node a){
+    bool operator < (Node a) const{
         return f() < a.f();
+    }
+
+    bool operator == (Node a) const{
+        return x == a.x && y == a.y;
     }
 };
 
@@ -50,6 +54,25 @@ class Map{
         return N;
     }
 
+    QList<Node> adjacentNodes(Node expanded){
+        QList<Node> ret;
+        if(!isOpen(expanded)){
+            return ret;
+        }
+        int dirX[] = {-1, -1, 1, 1};
+        int dirY[] = {-1, 1, -1, 1};
+        for(int i = 0; i < 3; i++){
+            Node newNode = expanded;
+            newNode.x += dirX[i];
+            newNode.y += dirY[i];
+            if(isOpen(newNode))
+                ret.append(newNode);
+        }
+        return ret;
+    }
+
+    Node getRandomValidNode();
+
 	static Map importMap(QString filename){
 		return Map(filename);
 	}
@@ -71,7 +94,8 @@ class Instance{
 		start = Start;
         goal = Goal;
 	}
-	~Instance(){}
+    ~Instance(){}
+
 
     /*!
      * \brief importInstances
