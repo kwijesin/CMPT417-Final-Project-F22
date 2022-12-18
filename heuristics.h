@@ -63,7 +63,7 @@ class CanonicalTDH : public Heuristic{
      */
     void mutateNodes(Map map, float mutationFactor);
 
-    QString toCSVString();
+    QString toCSVString(int index);
     static CanonicalTDH fromCSVString(QString str);
 
     bool isCalculated;

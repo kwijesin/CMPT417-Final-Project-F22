@@ -168,16 +168,49 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
     nodes = newList;
 }
 
-QString CanonicalTDH::toCSVString()
+QString CanonicalTDH::toCSVString(int index)
 {
-    QString ret;
+    //Fields are: index, generation, score, number of nodes, 1x.1y.2x.2y.3x.3y
+    QString ret, nodesStr;
+    QStringList seperateList;
+    QStringList stringNodes;
+    for(int i = 0; i < k; i++){
+        Node add = nodes.at(i);
+        stringNodes.append(QString::number(add.x));
+        stringNodes.append(QString::number(add.y));
+    }
+    nodesStr = stringNodes.join('.');
+
+    seperateList.append(QString::number(index));
+    seperateList.append(QString::number(generation));
+    seperateList.append(QString::number(score));
+    seperateList.append(QString::number(k));
+    seperateList.append(nodesStr);
+
+    ret = seperateList.join(',');
 
     return ret;
 }
 
 CanonicalTDH CanonicalTDH::fromCSVString(QString str)
 {
-    return CanonicalTDH();
+    //Fields are: index, generation, score, number of nodes, 1x.1y.2x.2y.3x.3y
+    CanonicalTDH ret;
+    QStringList fieldList = str.split(',');
+
+    ret.generation = fieldList.at(1).toInt();
+    ret.score = fieldList.at(2).toInt();
+    ret.k = fieldList.at(3).toInt();
+
+    QStringList coordinateList = fieldList.at(4).split('.');
+    for(int i = 0; i < coordinateList.length(); i += 2){
+        Node add;
+        add.x = coordinateList.at(i).toInt();
+        add.y = coordinateList.at(i+1).toInt();
+        ret.nodes.append(add);
+    }
+
+    return ret;
 }
 
 struct coordinate{
