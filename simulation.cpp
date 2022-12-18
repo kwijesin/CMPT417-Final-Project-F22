@@ -66,8 +66,8 @@ void Population::crossover(int count)
         }
 
         // cross them
-        CanonicalTDH tdh = population.at(a).crossoverNodes(population.at(b));
-        newPopulation.append(tdh);
+        CanonicalTDH childTDH = population.at(a).crossover(population.at(b));
+        newPopulation.append(childTDH);
     }
     population = newPopulation;
 }

@@ -53,7 +53,7 @@ class CanonicalTDH : public Heuristic{
      *  Crossover function that takes two heuristics and returns a new one with a mix of the two
      *  The crossover point is a random number between 0 and k
      */
-    CanonicalTDH crossover(CanonicalTDH other);
+    CanonicalTDH crossover(CanonicalTDH other) const;
 
     /*!
      * \brief mutateNodes
@@ -62,6 +62,9 @@ class CanonicalTDH : public Heuristic{
      *  with a small chance to replace one of the pivots with a completely new one
      */
     void mutateNodes(Map map, float mutationFactor);
+
+    QString toCSVString();
+    static CanonicalTDH fromCSVString(QString str);
 
     bool isCalculated;
 	

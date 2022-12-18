@@ -120,7 +120,7 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
     return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
 }
 
-CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other)
+CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other) const
 {
     CanonicalTDH child;
     child.k = k;
@@ -166,6 +166,18 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
         newList.append(newNode);
     }
     nodes = newList;
+}
+
+QString CanonicalTDH::toCSVString()
+{
+    QString ret;
+
+    return ret;
+}
+
+CanonicalTDH CanonicalTDH::fromCSVString(QString str)
+{
+    return CanonicalTDH();
 }
 
 struct coordinate{
