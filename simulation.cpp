@@ -97,7 +97,7 @@ void exportToCSV(Population population, QString filename)
     int ind = 0;
     for (i = population.population.begin(); i != population.population.end(); i++)
     {
-        f << ind << "," << i->generation << "," << i->score << "," << i->nodes.length() << std::endl;
+        f << i->toCSVString(ind).toStdString() << std::endl;
         ind++;
     }
     f.close();
@@ -105,34 +105,38 @@ void exportToCSV(Population population, QString filename)
 
 void exportToCSV(CanonicalTDH heuristic, QString filename)
 {
+    QFile file(filename);
+    if(!file.exists())
+        return;
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
 
+    QTextStream fileOut(&file);
+    fileOut << heuristic.toCSVString(0) << "\n";
+
+    file.close();
 }
 
 QList<CanonicalTDH> importFromCSV(QString filename)
 {
     QList<CanonicalTDH> ret;
+    QFile file(filename);
+    QString line;
+    if(!file.exists())
+        return ret;
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return ret;
 
-    std::ifstream f(filename.toStdString(), std::ofstream::out);
-    std::string line, col_val;
-    std::getline(f, line); // skip the first line
-    if (f.good())
-    {
-        std::getline(f, line);
-        while (std::getline(f, line))
-        {
-            CanonicalTDH tdh;
-            std::stringstream ss(line);
-            std::getline(ss, col_val, ','); // skip the index
-            std::getline(ss, col_val, ','); // get the generation in col_val
-            tdh.generation = col_val.toInt();
-            std::getline(ss, col_val, ','); // get the score in col_val
-            tdh.score = col_val.toInt();
-            std::getline(ss, col_val, ','); // skip the number of nodes
-
-            ret.append(tdh);
-        }
+    line = file.readLine();
+    while(!file.atEnd()){
+        line = file.readLine();
+        if(line.endsWith('\n'))
+            line.chop(1);
+        CanonicalTDH tdh = CanonicalTDH::fromCSVString(line);
+        ret.append(tdh);
     }
-    f.close();
+
+    file.close();
     return ret;
 }
 
