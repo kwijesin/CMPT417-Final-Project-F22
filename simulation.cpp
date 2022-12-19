@@ -2,14 +2,16 @@
 #include <fstream>
 #include <queue>
 #include <vector>
+#include <QObject>
 #include <QRandomGenerator>
 #include "simulation.h"
 
-void Population::initialize(int popCount)
+void Population::initialize(int popCount, int k)
 {
     for (int i = 0; i < popCount; i++)
     {
         CanonicalTDH tdh = CanonicalTDH(0, 0);
+        tdh.setK(k);
         tdh.randomizeNodes(*map);
         population.append(tdh);
     }
@@ -17,16 +19,31 @@ void Population::initialize(int popCount)
     generation = 0;
 }
 
-void Population::testPopulation(Solver solver, QList<Instance> instances)
+void Population::testPopulation(Solver* solver, QList<Instance> instances)
 {
     for (int i = 0; i < population.length(); i++)
     {
         CanonicalTDH* tdh = &(population.data()[i]);
+        onTestStarted(i);
         tdh->calculateTDH(*map);
+        tdh->score = 0;
+        int numSolved = 0;
+        int largestNumExpansions = 0;
         for(int j = 0; j < instances.length(); j++){
-            int pathLen;
-            solver.solve(*map, instances.at(j), &pathLen, &tdh->score, tdh);
+            QList<Node> path;
+            int numExpansions = 0;
+            bool solved = solver->solve(*map, instances.at(j), &path, &numExpansions, tdh);
+            if(solved){
+                numSolved++;
+            }
+            if(numExpansions > largestNumExpansions){
+                largestNumExpansions = numExpansions;
+            }
+            tdh->score += numExpansions;
         }
+        tdh->score += (largestNumExpansions * (instances.count() - numSolved));
+        tdh->generation++;
+        //tdh->score = tdh->score / instances.count();
     }
     generation++;
 }
@@ -36,7 +53,7 @@ void Population::keepBest(int count)
     QList<CanonicalTDH> newPopulation;
 
     // Push all members of the population onto a max heap
-    auto cmp = [](CanonicalTDH a, CanonicalTDH b) { return a.score < b.score; };
+    auto cmp = [](CanonicalTDH a, CanonicalTDH b) { return a.score > b.score; };
     std::priority_queue<CanonicalTDH, std::vector<CanonicalTDH>, decltype(cmp)> pq(cmp);
     for (int i = 0; i < population.length(); i++)
     {
@@ -89,18 +106,32 @@ CanonicalTDH Population::getBest()
     return best;
 }
 
+void Population::onTestStarted(int testN)
+{
+    return;
+}
+void QTPopulation::onTestStarted(int testN)
+{
+    emit reportTestStarted(testN);
+}
+
 void exportToCSV(Population population, QString filename)
 {
-    std::ofstream f(filename.toStdString(), std::ofstream::out);
-    f << "index,generation,score,k" << std::endl;
+    QFile file(filename);
+    bool isNew = !file.exists();
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+        return;
+    QTextStream fileOut(&file);
+    if(isNew)
+        fileOut << "index,generation,score,k" << "\n";
     QList<CanonicalTDH>::iterator i;
     int ind = 0;
     for (i = population.population.begin(); i != population.population.end(); i++)
     {
-        f << i->toCSVString(ind).toStdString() << std::endl;
+        fileOut << i->toCSVString(ind) << '\n';
         ind++;
     }
-    f.close();
+    file.close();
 }
 
 void exportToCSV(CanonicalTDH heuristic, QString filename)
@@ -162,9 +193,9 @@ int runSimulation(QString mapName, QString instanceName, QString outputName, int
     Solver solver = AStar();
 
     //save initial state and run the first generation
-    population.initialize(pop);
+    population.initialize(pop, 20);
     exportToCSV(population, outputName);
-    population.testPopulation(solver, testInstances);
+    population.testPopulation(&solver, testInstances);
     exportToCSV(population, outputName);
 
     while(population.generation <= generations){
@@ -180,7 +211,7 @@ int runSimulation(QString mapName, QString instanceName, QString outputName, int
             testInstances = Instance::getRandomTestSuite(allInstances, testCount);
 
         //solve and save data
-        population.testPopulation(solver, testInstances);
+        population.testPopulation(&solver, testInstances);
         exportToCSV(population, outputName);
     }
 
@@ -190,14 +221,19 @@ int runSimulation(QString mapName, QString instanceName, QString outputName, int
 void SimulationThread::run(){
     Map map(mapName);
     QList<Instance> allInstances = Instance::importInstances(instanceName);
-    QList<Instance> testInstances = Instance::getRandomTestSuite(allInstances, testCount);
-    Population population(&map);
-    Solver solver = AStar();
+    QList<Instance> testInstances;
+    if(instanceName == "random")
+        testInstances = Instance::generateRandomTestSuite(map, testCount);
+    else
+        testInstances = Instance::getRandomTestSuite(allInstances, testCount);
+    QTPopulation population(&map);
+    AStar solver = AStar();
+    QObject::connect(&population, SIGNAL(reportTestStarted(int)), this, SIGNAL(reportProgressTest(int)));
 
     //save initial state and run the first generation
-    population.initialize(pop);
-    exportToCSV(population, outputName);
-    population.testPopulation(solver, testInstances);
+    population.initialize(pop, 20);
+    //exportToCSV(population, outputName);
+    population.testPopulation(&solver, testInstances);
     exportToCSV(population, outputName);
 
     while(population.generation <= generations){
@@ -207,14 +243,15 @@ void SimulationThread::run(){
         population.mutate(mutation);
 
         //generate test suite
-        testInstances = Instance::getRandomTestSuite(allInstances, testCount);
-
-        //solve and save data
-        population.testPopulation(solver, testInstances);
-        exportToCSV(population, outputName);
-
-        msleep(QRandomGenerator::global()->bounded(500, 1000)); //TESTING sleeps for 0.5-1 second to simulate calculation time
+        if(instanceName == "random")
+            testInstances = Instance::generateRandomTestSuite(map, testCount);
+        else
+            testInstances = Instance::getRandomTestSuite(allInstances, testCount);
 
         emit reportProgress(population.generation);
+
+        //solve and save data
+        population.testPopulation(&solver, testInstances);
+        exportToCSV(population, outputName);
     }
 }

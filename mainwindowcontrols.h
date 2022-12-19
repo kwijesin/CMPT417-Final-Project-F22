@@ -19,6 +19,7 @@ public:
 private slots:
     void onSimulationComplete();
     void onSimulationReport(int generation);
+    void onSimulationReportTest(int test);
 
     void on_pushButtonStart_clicked();
 
@@ -37,6 +38,11 @@ private slots:
 private:
     Ui::MainWindowControls *ui;
     SimulationThread* mainSimulationThread;
+
+    int currentGen = 0;
+    int genMax = 0;
+    int currentTest = 0;
+    int testMax = 0;
 
     QString currentMapFilename;
     Map currentMap;

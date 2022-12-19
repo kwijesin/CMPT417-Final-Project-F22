@@ -44,7 +44,7 @@ class AStar : public Solver{
 	AStar(){}
 	~AStar(){}
 
-    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic) const;
+    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic = NULL) const override;
 
 };
 
@@ -57,7 +57,7 @@ class IDAStar : public Solver{
 	IDAStar(){}
 	~IDAStar(){}
 
-    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic) const;
+    bool solve(Map map, Instance instance, QList<Node>* path, int* nExpansions, Heuristic* heuristic = NULL) const override;
 };
 
 #endif

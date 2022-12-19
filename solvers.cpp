@@ -37,7 +37,7 @@ bool Solver::solve(Map map, Instance instance, QList<Node>* path, int* nExpansio
         }
     }
     if(goalFound){
-        *nExpansions += numExpansions;
+        *nExpansions = numExpansions;
     }
     return goalFound;
 }
@@ -47,9 +47,9 @@ bool AStar::solve(Map map, Instance instance, QList<Node>* path, int* nExpansion
     int numExpansions = 0;
     bool goalFound = false;
     NodeHeap openList;
-    QMap<Node, int> visitedNodesGScore;
+    QMap<Coordinate, int> visitedNodesGScore;
     openList.push(instance.start);
-    visitedNodesGScore.insert(instance.start, 0);
+    visitedNodesGScore.insert(instance.start.toCoordinate(), 0);
     while(!openList.empty()){
         Node currentNode = openList.pop();
         numExpansions++;
@@ -63,13 +63,13 @@ bool AStar::solve(Map map, Instance instance, QList<Node>* path, int* nExpansion
             child.g = currentNode.g + 1;
             child.h = heuristic->getHeuristic(child, instance.goal);
 
-            if(!visitedNodesGScore.contains(child)){
-                visitedNodesGScore.insert(child, child.g);
+            if(!visitedNodesGScore.contains(child.toCoordinate())){
+                visitedNodesGScore.insert(child.toCoordinate(), child.g);
                 openList.push(child);
             }else{
-                int oldGScore = visitedNodesGScore.value(child);
+                int oldGScore = visitedNodesGScore.value(child.toCoordinate());
                 if(oldGScore > child.g){ //New best path to this node found
-                    visitedNodesGScore.insert(child, child.g);
+                    visitedNodesGScore.insert(child.toCoordinate(), child.g);
                     if(openList.find(child) != openList.end()){
                         openList.erase(child);
                     }
@@ -79,7 +79,7 @@ bool AStar::solve(Map map, Instance instance, QList<Node>* path, int* nExpansion
         }
     }
     if(goalFound){
-        *nExpansions += numExpansions;
+        *nExpansions = numExpansions;
     }
     return goalFound;
 }

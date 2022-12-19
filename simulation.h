@@ -12,21 +12,22 @@
 
 class Population{
     public:
-    Population(const Map* map){}
+    Population(){};
+    Population(Map* m){map = m;}
     ~Population(){}
 
     /*!
      * \brief initialize
      * populates the canonical TDH list with popcount items. Each Heuristic is at generation 0 with randomized starts
      */
-    void initialize(int popCount);
+    void initialize(int popCount, int k);
 
     /*!
      * \brief testPopulation
      * tests a population on a list of instances using a solver. The generation will be incremented after this function ends.
      * Possibly could use multithreading using QTConcurrent https://doc.qt.io/qt-6/qtconcurrentmap.html
      */
-    void testPopulation(Solver solver, QList<Instance> instances);
+    void testPopulation(Solver* solver, QList<Instance> instances);
 
     /*!
      * \brief keepBest
@@ -55,9 +56,23 @@ class Population{
      */
     CanonicalTDH getBest();
 
+    virtual void onTestStarted(int testN);
+
     int generation;
     QList<CanonicalTDH> population;
     Map* map;
+};
+
+class QTPopulation : public QObject, public Population{
+    Q_OBJECT
+public:
+    QTPopulation(Map* m){
+        map = m;
+    }
+
+    void onTestStarted(int testN) override;
+signals:
+    void reportTestStarted(int testN);
 };
 
 /*!
@@ -98,6 +113,7 @@ class SimulationThread : public QThread
     void run() override;
 signals:
     void reportProgress(int currentGeneration);
+    void reportProgressTest(int testN);
 public:
     QString mapName;
     QString instanceName;

@@ -1,0 +1,1 @@
+empty-48-48.map random Quick_command.out 50 10 100 4 1.0

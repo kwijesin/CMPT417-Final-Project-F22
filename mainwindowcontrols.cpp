@@ -23,6 +23,8 @@ MainWindowControls::MainWindowControls(QWidget *parent)
 
     ui->progressBar->setMaximum(100);
     ui->progressBar->setValue(0);
+    ui->progressBarTest->setMaximum(100);
+    ui->progressBarTest->setValue(0);
 }
 
 MainWindowControls::~MainWindowControls()
@@ -40,7 +42,18 @@ void MainWindowControls::onSimulationComplete()
 
 void MainWindowControls::onSimulationReport(int generation)
 {
-    ui->progressBar->setValue(generation);
+    currentGen = generation;
+    ui->progressBar->setValue(currentGen);
+    ui->progressBarTest->setValue(0);
+    ui->progressBar->setFormat("Generation " + QString::number(currentGen) + "/" + QString::number(genMax) + " (%p%)");
+    //ui->labelMap->setHeuristic(currentMap, mainSimulationThread.)
+}
+
+void MainWindowControls::onSimulationReportTest(int test)
+{
+    currentTest = test++;
+    ui->progressBarTest->setValue(currentTest);
+    ui->progressBarTest->setFormat("Test " + QString::number(currentTest) + "/" + QString::number(testMax) + " (%p%)");
 }
 
 
@@ -74,10 +87,15 @@ void MainWindowControls::on_pushButtonStart_clicked()
 
     //set up UI connections and start thread
     ui->labelCurrentCommand->setText(command);
-    ui->progressBar->setMaximum(argList.at(GENERATIONS_IND).toInt());
+    genMax = argList.at(GENERATIONS_IND).toInt();
+    testMax = argList.at(POP_IND).toInt();
+    ui->progressBar->setMaximum(genMax);
     ui->progressBar->setValue(0);
+    ui->progressBarTest->setMaximum(testMax);
+    ui->progressBarTest->setValue(0);
     ui->labelMap->setMap(currentPath + argList.at(MAP_IND));
     QObject::connect(mainSimulationThread, SIGNAL(reportProgress(int)), this, SLOT(onSimulationReport(int)));
+    QObject::connect(mainSimulationThread, SIGNAL(reportProgressTest(int)), this, SLOT(onSimulationReportTest(int)));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), this, SLOT(onSimulationComplete()));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), mainSimulationThread, SLOT(deleteLater()));
     mainSimulationThread->start();

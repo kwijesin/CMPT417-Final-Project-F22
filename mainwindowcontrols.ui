@@ -159,6 +159,22 @@
          <property name="textDirection">
           <enum>QProgressBar::TopToBottom</enum>
          </property>
+         <property name="format">
+          <string>Generation: %p%</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBarTest">
+         <property name="value">
+          <number>24</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="format">
+          <string>Test: %p%</string>
+         </property>
         </widget>
        </item>
       </layout>

@@ -4,6 +4,26 @@
 #include <QString>
 #include <QList>
 
+struct Coordinate{
+    Coordinate(int x, int y) : x(x), y(y){};
+    int x;
+    int y;
+
+    int pair() const{
+        if(x > y){
+            return (x*x) + x + y;
+        }else{
+            return (y*y) + x;
+        }
+    }
+    bool operator == (Coordinate a) const{
+        return pair() == a.pair();
+    }
+    bool operator < (Coordinate a) const{
+        return pair() < a.pair();
+    }
+};
+
 struct Node{
     //normal nodes
     int x = NULL;
@@ -23,7 +43,11 @@ struct Node{
     }
 
     bool operator == (Node a) const{
-        return x == a.x && y == a.y;
+        return (x == a.x) && (y == a.y);
+    }
+
+    Coordinate toCoordinate(){
+        return Coordinate(x,y);
     }
 };
 

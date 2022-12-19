@@ -3,11 +3,8 @@
 #include <cmath>
 #include <random>
 #include <set>
-<<<<<<< HEAD
 #include <iostream>
-=======
 #include <QRandomGenerator>
->>>>>>> yilin
 
 int Heuristic::getHeuristic(Node N, Node Goal) const
 {
@@ -144,6 +141,8 @@ CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other) const
     CanonicalTDH child;
     child.k = k;
     child.generation = generation;
+    child.score = 0;
+    child.isCalculated = false;
     int cross_point = QRandomGenerator::global()->generate() % nodes.length();
 
     // add the first 'cross_point' pivots from the first parent
@@ -168,7 +167,6 @@ void CanonicalTDH::mutateNodes(Map map, float mutationFactor)
 
     //moves each node by a normal distribution
     QList<Node> newList;
-    nodes.clear();
     for(int i = 0; i < k; i++){
         Node newNode;
         int xOff,yOff;
@@ -232,37 +230,16 @@ CanonicalTDH CanonicalTDH::fromCSVString(QString str)
     return ret;
 }
 
-struct coordinate{
-    int x;
-    int y;
-
-    int pair() const{
-        if(x > y){
-            return (x^2) + x + y;
-        }else{
-            return (y^2) + x;
-        }
-    }
-    bool operator == (coordinate a) const{
-        return (x == a.x) && (y == a.y);
-    }
-    bool operator < (coordinate a) const{
-        return pair() < a.pair();
-    }
-};
-
-size_t qHash(const coordinate &key, size_t seed){
+size_t qHash(const Coordinate &key, size_t seed){
     return qHashMulti(seed, key.x,key.y);
 }
 
-QSet<coordinate> getUnmarkedList(Map map){
-    QSet<coordinate> ret;
+QSet<Coordinate> getUnmarkedList(Map map){
+    QSet<Coordinate> ret;
     for(int y = 0; y < map.ySize; y++){
         for(int x = 0; x < map.xSize; x++){
             if(map.isOpen(x,y)){
-                coordinate add;
-                add.x = x;
-                add.y = y;
+                Coordinate add(x,y);
                 ret.insert(add);
             }
         }
@@ -292,13 +269,10 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
     //creates nodes from scratch
 
     const int areaOfZone = map.N/k;
-    bool validTo10Percent = false;
-    int actualK = 0;
 
     nodes.clear();
-    QSet<coordinate> markedList;
-    QSet<coordinate> unmarkedList = getUnmarkedList(map);
-    actualK = 0;
+    QSet<Coordinate> markedList;
+    QSet<Coordinate> unmarkedList = getUnmarkedList(map);
 
     NodeHeap openList;
     int numNodesMarked = 0;   //up to x*y
@@ -306,7 +280,7 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
         int numNodesInZone = 1;
 
         //find a random unmarked point to use as a new pivot
-        coordinate root = randomKeyFromHash(unmarkedList);
+        Coordinate root = randomKeyFromHash(unmarkedList);
         Node newPivot;
         newPivot.x = root.x;
         newPivot.y = root.y;
@@ -315,7 +289,6 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
         markedList.insert(root);
         numNodesMarked++;
         unmarkedList.remove(root);
-        actualK++;
 
         //DFS areaOfZone points branching from that point
         NodeHeap openList;
@@ -326,9 +299,7 @@ void AlgorithmicCanonicalTDH::calculateTDH(Map map)
             QList<Node> childNodes = map.adjacentNodes(expandingNode);
             for(int i = 0; i < childNodes.length(); i++){
                 Node childNode = childNodes.at(i);
-                coordinate child;
-                child.x = childNode.x;
-                child.y = childNode.y;
+                Coordinate child(childNode.x, childNode.y);
                 if(unmarkedList.contains(child)){
                     unmarkedList.remove(child);
                     markedList.insert(child);
