@@ -1,0 +1,1 @@
+den312d.map random den312d_results.csv 100 40 400 4 20 1.0

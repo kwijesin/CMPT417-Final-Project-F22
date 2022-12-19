@@ -1,0 +1,5 @@
+ht_chantry.map random ht_chantry_results_1.csv 50 50 100 4 10 1.0
+ht_chantry.map random ht_chantry_results_2.csv 20 50 200 4 10 1.0
+ht_chantry.map random ht_chantry_results_3.csv 100 20 100 4 15 1.0
+ht_chantry.map random ht_chantry_results_4.csv 100 20 100 4 10 1.0
+ht_chantry.map random ht_chantry_results_5.csv 100 20 100 4 10 1.0

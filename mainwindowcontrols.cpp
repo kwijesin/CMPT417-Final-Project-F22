@@ -12,7 +12,8 @@
 #define GENERATIONS_IND 4
 #define TESTSIZE_IND 5
 #define CULL_IND 6
-#define MUTATION_IND 7
+#define K_IND 7
+#define MUTATION_IND 8
 
 MainWindowControls::MainWindowControls(QWidget *parent)
     : QMainWindow(parent)
@@ -46,7 +47,7 @@ void MainWindowControls::onSimulationReport(int generation)
     ui->progressBar->setValue(currentGen);
     ui->progressBarTest->setValue(0);
     ui->progressBar->setFormat("Generation " + QString::number(currentGen) + "/" + QString::number(genMax) + " (%p%)");
-    //ui->labelMap->setHeuristic(currentMap, mainSimulationThread.)
+    ui->labelMap->setHeuristic(currentMap, mainSimulationThread->population.getBest());
 }
 
 void MainWindowControls::onSimulationReportTest(int test)
@@ -83,6 +84,7 @@ void MainWindowControls::on_pushButtonStart_clicked()
     mainSimulationThread->generations = argList.at(GENERATIONS_IND).toInt();
     mainSimulationThread->testCount = argList.at(TESTSIZE_IND).toInt();
     mainSimulationThread->cullRate = argList.at(CULL_IND).toInt();
+    mainSimulationThread->k = argList.at(K_IND).toInt();
     mainSimulationThread->mutation = argList.at(MUTATION_IND).toFloat();
 
     //set up UI connections and start thread
@@ -93,7 +95,9 @@ void MainWindowControls::on_pushButtonStart_clicked()
     ui->progressBar->setValue(0);
     ui->progressBarTest->setMaximum(testMax);
     ui->progressBarTest->setValue(0);
-    ui->labelMap->setMap(currentPath + argList.at(MAP_IND));
+    currentMapFilename = currentPath + argList.at(MAP_IND);
+    ui->labelMap->setMap(currentMapFilename);
+    currentMap = Map(currentMapFilename);
     QObject::connect(mainSimulationThread, SIGNAL(reportProgress(int)), this, SLOT(onSimulationReport(int)));
     QObject::connect(mainSimulationThread, SIGNAL(reportProgressTest(int)), this, SLOT(onSimulationReportTest(int)));
     QObject::connect(mainSimulationThread, SIGNAL(finished()), this, SLOT(onSimulationComplete()));

@@ -136,26 +136,36 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
     return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
 }
 
-CanonicalTDH CanonicalTDH::crossover(CanonicalTDH other) const
+QList<CanonicalTDH> CanonicalTDH::crossover(CanonicalTDH other) const
 {
-    CanonicalTDH child;
-    child.k = k;
-    child.generation = generation;
-    child.score = 0;
-    child.isCalculated = false;
+    QList<CanonicalTDH> ret;
+    CanonicalTDH child1, child2;
+    child1.k = k;
+    child1.generation = generation;
+    child1.score = 0;
+    child1.isCalculated = false;
+    child2.k = k;
+    child2.generation = generation;
+    child2.score = 0;
+    child2.isCalculated = false;
     int cross_point = QRandomGenerator::global()->generate() % nodes.length();
 
-    // add the first 'cross_point' pivots from the first parent
+    //nodes from the parents are split in half
+    //child1 gets the first half from the first parent, child 2 gets the first half from the second parent
     for(int i = 0; i < cross_point; i++){
-        child.nodes.append(nodes.at(i));
+        child1.nodes.append(nodes.at(i));
+        child2.nodes.append(other.nodes.at(i));
     }
-
-    // add the remaining pivots from the second parent
+    // vice versa for the second half
     for(int i = cross_point; i < nodes.length(); i++){
-        child.nodes.append(other.nodes.at(i));
+        child1.nodes.append(other.nodes.at(i));
+        child2.nodes.append(nodes.at(i));
     }
 
-    return child;
+    ret.append(child1);
+    ret.append(child2);
+
+    return ret;
 }
 
 void CanonicalTDH::mutateNodes(Map map, float mutationFactor)

@@ -53,7 +53,7 @@ class CanonicalTDH : public Heuristic{
      *  Crossover function that takes two heuristics and returns a new one with a mix of the two
      *  The crossover point is a random number between 0 and k
      */
-    CanonicalTDH crossover(CanonicalTDH other) const;
+    QList<CanonicalTDH> crossover(CanonicalTDH other) const;
 
     /*!
      * \brief mutateNodes

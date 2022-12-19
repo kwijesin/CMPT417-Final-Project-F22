@@ -73,8 +73,7 @@ void Population::keepBest(int count)
 void Population::crossover(int count)
 {
     QList<CanonicalTDH> newPopulation;
-    for (int i = 0; i < count; i++)
-    {
+    while(newPopulation.length() < count){
         // pick two random members of the population
         int a = QRandomGenerator::global()->bounded(population.length());
         int b = QRandomGenerator::global()->bounded(population.length());
@@ -82,9 +81,11 @@ void Population::crossover(int count)
             b = QRandomGenerator::global()->bounded(population.length());
         }
 
-        // cross them
-        CanonicalTDH childTDH = population.at(a).crossover(population.at(b));
-        newPopulation.append(childTDH);
+        //add the children of those members
+        QList<CanonicalTDH> children = population.at(a).crossover(population.at(b));
+        newPopulation.append(children.at(0));
+        if(newPopulation.length() != count)
+            newPopulation.append(children.at(1));
     }
     population = newPopulation;
 }
@@ -226,15 +227,16 @@ void SimulationThread::run(){
         testInstances = Instance::generateRandomTestSuite(map, testCount);
     else
         testInstances = Instance::getRandomTestSuite(allInstances, testCount);
-    QTPopulation population(&map);
+    population.map = &map;
     AStar solver = AStar();
     QObject::connect(&population, SIGNAL(reportTestStarted(int)), this, SIGNAL(reportProgressTest(int)));
 
     //save initial state and run the first generation
-    population.initialize(pop, 20);
+    population.initialize(pop, k);
     //exportToCSV(population, outputName);
     population.testPopulation(&solver, testInstances);
     exportToCSV(population, outputName);
+    emit reportProgress(population.generation);
 
     while(population.generation <= generations){
         //do the genetic part
@@ -248,10 +250,10 @@ void SimulationThread::run(){
         else
             testInstances = Instance::getRandomTestSuite(allInstances, testCount);
 
-        emit reportProgress(population.generation);
-
         //solve and save data
         population.testPopulation(&solver, testInstances);
         exportToCSV(population, outputName);
+
+        emit reportProgress(population.generation);
     }
 }

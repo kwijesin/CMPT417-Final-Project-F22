@@ -66,6 +66,7 @@ class Population{
 class QTPopulation : public QObject, public Population{
     Q_OBJECT
 public:
+    QTPopulation(){};
     QTPopulation(Map* m){
         map = m;
     }
@@ -122,7 +123,10 @@ public:
     int generations;
     int testCount;
     int cullRate;
+    int k;
     float mutation;
+
+    QTPopulation population;
 };
 
 #endif

@@ -1,0 +1,2 @@
+den520d.map random den520d_results.csv 40 10 50 4 10 1.0
+den520d.map random den520d_results.csv 100 200 100 4 20 1.0
