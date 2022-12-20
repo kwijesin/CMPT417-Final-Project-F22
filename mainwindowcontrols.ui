@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1025</width>
-    <height>531</height>
+    <width>1315</width>
+    <height>812</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -122,6 +122,50 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonManHatHeuristic">
+            <property name="text">
+             <string>Manhattan Heuristic</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonOpenHeuristic">
+            <property name="text">
+             <string>Open Heuristic:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBoxNTests">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="prefix">
+             <string>Number of tests: </string>
+            </property>
+            <property name="minimum">
+             <number>100</number>
+            </property>
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonTestHeuristic">
+            <property name="text">
+             <string>Test Heuristic</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelTestResult">
+            <property name="text">
+             <string>Total # Expansions:</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -212,7 +256,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1025</width>
+     <width>1315</width>
      <height>21</height>
     </rect>
    </property>

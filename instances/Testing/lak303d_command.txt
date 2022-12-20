@@ -1,0 +1,2 @@
+lak303d.map random lak303d_results.csv 100 50 500 4 40 1.0
+lak303d.map random lak303d_results.csv 100 50 100 4 40 1.0

@@ -133,7 +133,13 @@ int CanonicalTDH::getHeuristic(Node N, Node Goal) const
     Node nearestG = secondary[Goal.x][Goal.y].closestPivot;
     int indNearestN = nodes.indexOf(nearestN);
     int indNearestG = nodes.indexOf(nearestG);
-    return primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
+    int canon = primary[indNearestN][indNearestG] - secondary[N.x][N.y].pivotDistance - secondary[Goal.x][Goal.y].pivotDistance;
+    int manhat = Heuristic::getHeuristic(N, Goal);
+    if(canon < manhat){
+        return manhat;
+    }else{
+        return canon;
+    }
 }
 
 QList<CanonicalTDH> CanonicalTDH::crossover(CanonicalTDH other) const

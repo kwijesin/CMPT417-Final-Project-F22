@@ -4,6 +4,7 @@
 #include <QFileDialog>
 
 #include "simulation.h"
+#include "instances.h"
 
 #define MAP_IND 0
 #define INSTANCE_IND 1
@@ -162,10 +163,13 @@ void MainWindowControls::on_pushButtonReset_clicked()
 
 void MainWindowControls::on_pushButtonAlgoHeuristic_clicked()
 {
-    AlgorithmicCanonicalTDH TDH;
-    TDH.setK(ui->spinBoxK->value());
-    TDH.calculateTDH(currentMap);
-    ui->labelMap->setHeuristic(currentMap, TDH);
+    if(currentHeuristic != NULL)
+        delete currentHeuristic;
+    AlgorithmicCanonicalTDH* TDH = new AlgorithmicCanonicalTDH();
+    currentHeuristic = TDH;
+    TDH->setK(ui->spinBoxK->value());
+    TDH->calculateTDH(currentMap);
+    ui->labelMap->setHeuristic(currentMap, *TDH);
 }
 
 
@@ -184,10 +188,80 @@ void MainWindowControls::on_pushButton_clicked()
 
 void MainWindowControls::on_pushButtonRandHeuristic_clicked()
 {
-    CanonicalTDH TDH;
-    TDH.setK(ui->spinBoxK->value());
-    TDH.randomizeNodes(currentMap);
-    TDH.calculateTDH(currentMap);
-    ui->labelMap->setHeuristic(currentMap, TDH);
+    if(currentHeuristic != NULL)
+        delete currentHeuristic;
+    CanonicalTDH* TDH = new CanonicalTDH();
+    currentHeuristic = TDH;
+    TDH->setK(ui->spinBoxK->value());
+    TDH->randomizeNodes(currentMap);
+    TDH->calculateTDH(currentMap);
+    ui->labelMap->setHeuristic(currentMap, *TDH);
+}
+
+
+void MainWindowControls::on_pushButtonManHatHeuristic_clicked()
+{
+    if(currentHeuristic != NULL)
+        delete currentHeuristic;
+    currentHeuristic = new Heuristic();
+    ui->labelMap->setMap(currentMap);
+}
+
+
+void MainWindowControls::on_pushButtonOpenHeuristic_clicked()
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open Heuristic", "", "*.csv, *.txt");
+    if(!QFile::exists(filename))
+        return;
+
+    QList<CanonicalTDH> list = importFromCSV(filename);
+    if(list.length() == 0)
+        return;
+
+    CanonicalTDH* TDH = new CanonicalTDH();
+    *TDH = list.at(0);
+    TDH->calculateTDH(currentMap);
+    ui->labelMap->setHeuristic(currentMap, *TDH);
+
+    if(currentHeuristic != NULL)
+        delete currentHeuristic;
+    currentHeuristic = TDH;
+
+}
+
+
+void MainWindowControls::on_pushButtonTestHeuristic_clicked()
+{
+    if(currentHeuristic == NULL)
+        return;
+
+    QString filename = QFileDialog::getOpenFileName(this, "Open Instances", "", "*.scen");
+    if(!QFile::exists(filename))
+        return;
+
+    AStar solve;
+
+    QList<Instance> testInstances = Instance::importInstances(filename);
+    int testCount = testInstances.length();
+    ui->spinBoxNTests->setValue(testCount);
+
+    ui->progressBarTest->setFormat("Running Heuristic Test: %p%");
+    ui->progressBarTest->setMaximum(testCount);
+    ui->progressBarTest->setValue(0);
+    int cumulative = 0;
+    int count = 0;
+    for(int i = 0; i < testInstances.length(); i++){
+        int nExpansions = 0;
+        bool solved = solve.solve(currentMap, testInstances.at(i), NULL, &nExpansions, currentHeuristic);
+        if(solved){
+            cumulative += nExpansions;
+            count++;
+        }
+        float avg = 0;
+        if(count != 0)
+            avg = cumulative / count;
+        ui->labelTestResult->setText("Average NExpansions: " + QString::number(avg));
+        ui->progressBarTest->setValue(i);
+    }
 }
 

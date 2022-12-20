@@ -35,6 +35,12 @@ private slots:
 
     void on_pushButtonRandHeuristic_clicked();
 
+    void on_pushButtonManHatHeuristic_clicked();
+
+    void on_pushButtonOpenHeuristic_clicked();
+
+    void on_pushButtonTestHeuristic_clicked();
+
 private:
     Ui::MainWindowControls *ui;
     SimulationThread* mainSimulationThread;
@@ -46,5 +52,6 @@ private:
 
     QString currentMapFilename;
     Map currentMap;
+    Heuristic * currentHeuristic = NULL;
 };
 #endif // MAINWINDOWCONTROLS_H

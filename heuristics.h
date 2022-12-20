@@ -11,6 +11,8 @@
  */
 class Heuristic{
 	public:
+    Heuristic(){}
+    ~Heuristic(){}
     virtual int getHeuristic(Node N, Node Goal) const;
 };
 
